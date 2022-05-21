@@ -15,6 +15,8 @@ class StoreController extends BaseController
         $this->storeModel = model('storeModel');
     }
 
+    // TODO: Only directors / managers are allowed to execute these opearations
+
     /**
      * Return an array of resource objects, themselves in array format
      *
@@ -22,6 +24,8 @@ class StoreController extends BaseController
      */
     public function index()
     {
+        // TODO: Filter to connected partner_id
+
         $data = $this->storeModel->select('id, store_name, deleted_at')->withDeleted()->findAll();
 
         $data = Utils::replaceDeletedAt($data);
@@ -46,6 +50,7 @@ class StoreController extends BaseController
         $data["partner_id"] = AuthenticationHelper::getConnectedUserId($this->request);
 
         $this->storeModel->insert($data);
+
         return $this->responseSuccess(null, "Store created successfully");
     }
 
@@ -62,10 +67,10 @@ class StoreController extends BaseController
             'store_name' => 'required'
         ]);
 
-
-        // TODO: Review validation model !!
+        if ( $this->storeModel->find($id) == null ) return $this->fail("We cannot find a store with this id");
 
         $this->storeModel->update($id, $data);
+
         return $this->responseSuccess(null, "Store updated successfully");
     }
 

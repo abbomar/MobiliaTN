@@ -35,6 +35,10 @@ $routes->setAutoRoute(true);
 
 
 $routes->resource('partner', ['controller' => 'PartnerController'] );
+$routes->resource('cashier', ['controller' => 'CashierController'] );
+$routes->resource('manager', ['controller' => 'ManagerController'] );
+$routes->resource('director', ['controller' => 'DirectorController'] );
+
 $routes->resource('store', ['controller' => 'StoreController'] );
 $routes->resource('registry', ['controller' => 'RegistryController'] );
 

@@ -81,13 +81,14 @@ class BaseController extends Controller
         return $this->respond($body);
     }
 
-    public function responseSuccess($data, $message = "Operation executed successfully !") {
+    public function responseSuccess($data, $message = "Success") {
 
         $body = [
             "error" => "0",
             "messages" => [ $message ],
             "data" => $data,
         ];
+
         return $this->respond($body);
     }
 }

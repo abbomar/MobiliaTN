@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Helpers\AuthenticationHelper;
 use App\Helpers\Utils;
+use App\Models\PartnerModel;
 
 class PartnerController extends BaseController
 {
@@ -14,13 +15,10 @@ class PartnerController extends BaseController
         $this->partnerModel = model('partnerModel');
     }
 
+    // TODO: Only admins are allowed to make these operations
+
     public function index()
     {
-        /*if ( AuthenticationHelper::getRole($this->request) == null)
-        {
-            return $this->failUnauthorized();
-        }*/
-
         $data = $this->partnerModel->select('user_id, phone_number, full_name, deleted_at')->withDeleted()->findAll();
 
         $data = Utils::replaceDeletedAt($data);
@@ -30,14 +28,10 @@ class PartnerController extends BaseController
 
     public function create()
     {
-        if ( AuthenticationHelper::getRole($this->request) == null)
-        {
-            return $this->failUnauthorized();
-        }
 
         $data = $this->readParamsAndValidate([
-            'phone_number' => 'required|min_length[12]|is_unique[users.phone_number]',
-            'full_name' => 'required|min_length[2]',
+            'phone_number' => 'required|exact_length[12]|regex_match[\+216[0-9]{8}]|is_unique[users.phone_number]',
+            'full_name' => 'required',
         ]);
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
@@ -50,35 +44,27 @@ class PartnerController extends BaseController
     public function update($id)
     {
         $data = $this->readParamsAndValidate([
-            'full_name' => 'required|min_length[2]',
+            'full_name' => 'required',
         ]);
 
         if( ! isset($data) ) {
             return $this->fail($this->validator->getErrors());
         }
 
-        $data['user_id'] = $id;
+        if ( $this->partnerModel->find($id) == null ) return $this->fail("We cannot find a partner with this id");
 
-        //TODO: Check if this is really a partner
+        $this->partnerModel->update($id, $data);
 
-
-        $this->partnerModel->update($data['user_id'], $data);
         return $this->responseSuccess(null, "Partner updated successfully");
     }
 
-    public function delete()
+    public function delete($id)
     {
-        $data = $this->readParamsAndValidate([
-            'user_id' => 'required|min_length[2]',
-        ]);
+        if ( $this->partnerModel->find($id) == null ) return $this->fail("We cannot find a partner with this id");
 
-        if( ! isset($data) ) {
-            return $this->fail($this->validator->getErrors());
-        }
+        $this->partnerModel->delete($id);
 
-        $this->partnerModel->delete($data['phone_number']);
-        return $this->responseSuccess(null, "Partner ${data['phone_number']} blocked successfully");
-
+        return $this->responseSuccess(null, "Partner $id blocked successfully");
     }
 
 }

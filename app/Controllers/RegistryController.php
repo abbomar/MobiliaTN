@@ -17,6 +17,8 @@ class RegistryController extends BaseController
     }
 
 
+    // TODO: Only managers can perform these opeations
+
     /**
      * Return an array of resource objects, themselves in array format
      *
@@ -24,6 +26,8 @@ class RegistryController extends BaseController
      */
     public function index()
     {
+        // TODO : Filter with store_id from the connected manager
+
         $data = $this->registryModel->select('id, registry_name, deleted_at')->withDeleted()->findAll();
 
         $data = Utils::replaceDeletedAt($data);
@@ -40,13 +44,17 @@ class RegistryController extends BaseController
     public function create()
     {
         $data = $this->readParamsAndValidate([
-            'registry_name' => 'required|min_length[2]',
+            'registry_name' => 'required',
         ]);
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
+        // TODO : Uncomment
+//        $data["store_id"] = AuthenticationHelper::getConnectedUserId($this->request)->store_id;
+        $data["store_id"] = "3537853b-98da-4276-abbb-aa50d87d2946";
 
         $this->registryModel->insert($data);
+
         return $this->responseSuccess(null, "Registry created successfully");
     }
 
@@ -59,12 +67,14 @@ class RegistryController extends BaseController
     public function update($id = null)
     {
         $data = $this->readParamsAndValidate([
-            'registry_name' => 'required|min_length[2]',
+            'registry_name' => 'required|min_length[2]'
         ]);
 
         if( ! isset($data) ) {
             return $this->fail($this->validator->getErrors());
         }
+
+        if ( $this->registryModel->find($id) == null ) return $this->fail("We cannot find a registry with this id");
 
         $this->registryModel->update($id, $data);
 

@@ -14,6 +14,7 @@ class RegistryModel extends Model
     protected $useSoftDeletes   = true;
     protected $protectFields    = false;
 
+    // Dates
     protected $useTimestamps = true;
 
     public function insert($data = null, bool $returnID = true)

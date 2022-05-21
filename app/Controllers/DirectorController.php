@@ -4,20 +4,20 @@ namespace App\Controllers;
 
 use App\Helpers\Utils;
 
-class CashierController extends BaseController
+class DirectorController extends BaseController
 {
-    private $cashierModel;
+    private $directorModel;
 
     public function __construct()
     {
-        $this->cashierModel = model('cashierModel');
+        $this->directorModel = model('directorModel');
     }
 
     // TODO: Only managers are allowed to make these operations
 
     public function index()
     {
-        $data = $this->cashierModel->select('user_id, phone_number, full_name, deleted_at')->withDeleted()->findAll();
+        $data = $this->directorModel->select('user_id, phone_number, full_name, deleted_at')->withDeleted()->findAll();
 
         $data = Utils::replaceDeletedAt($data);
 
@@ -34,9 +34,9 @@ class CashierController extends BaseController
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
-        $this->cashierModel->insert($data);
+        $this->directorModel->insert($data);
 
-        return $this->responseSuccess(null, "Cashier created successfully");
+        return $this->responseSuccess(null, "Director created successfully");
     }
 
     public function update($id)
@@ -49,20 +49,20 @@ class CashierController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->cashierModel->find($id) == null ) return $this->fail("We cannot find a cashier with this id");
+        if ( $this->directorModel->find($id) == null ) return $this->fail("We cannot find a director with this id");
 
-        $this->cashierModel->update($id, $data);
+        $this->directorModel->update($id, $data);
 
-        return $this->responseSuccess(null, "Cashier updated successfully");
+        return $this->responseSuccess(null, "Director updated successfully");
     }
 
     public function delete($id)
     {
-        if ( $this->cashierModel->find($id) == null ) return $this->fail("We cannot find a cashier with this id");
+        if ( $this->directorModel->find($id) == null ) return $this->fail("We cannot find a director with this id");
 
-        $this->cashierModel->delete($id);
+        $this->directorModel->delete($id);
 
-        return $this->responseSuccess(null, "Cashier $id blocked successfully");
+        return $this->responseSuccess(null, "Director $id blocked successfully");
     }
 
 }
