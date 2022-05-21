@@ -9,6 +9,7 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use CodeIgniter\API\ResponseTrait;
+use function PHPUnit\Framework\throwException;
 
 
 /**
@@ -54,5 +55,39 @@ class BaseController extends Controller
 
 
         // E.g.: $this->session = \Config\Services::session();
+    }
+
+    public function readParamsAndValidate($params) {
+
+        if ( ! $this->validate($params) ) {
+            return null;
+        };
+
+        $data = array();
+        foreach ($params as $key => $value)
+        {
+            $data[$key] = $this->request->getVar($key);
+        }
+
+        return $data;
+    }
+
+    public function responseError($messages) {
+        $body = [
+            "error" => "1",
+            "messages" => $messages,
+            "data" => null,
+        ];
+        return $this->respond($body);
+    }
+
+    public function responseSuccess($data, $message = "Operation executed successfully !") {
+
+        $body = [
+            "error" => "0",
+            "messages" => [ $message ],
+            "data" => $data,
+        ];
+        return $this->respond($body);
     }
 }

@@ -20,6 +20,7 @@ class ResourceController extends BaseResource
 {
     use ResponseTrait;
 
+
     /**
      * Return an array of resource objects, themselves in array format
      *
