@@ -12,7 +12,7 @@ class StoreController extends BaseController
 
     public function __construct()
     {
-        $this->storeModel = model('storeModel');
+        $this->storeModel = model('StoreModel');
     }
 
     // TODO: Only directors / managers are allowed to execute these opearations

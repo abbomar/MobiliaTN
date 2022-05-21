@@ -10,7 +10,7 @@ class ManagerController extends BaseController
 
     public function __construct()
     {
-        $this->managerModel = model('managerModel');
+        $this->managerModel = model('ManagerModel');
     }
 
     // TODO: Only partners or directors are allowed to make these operations

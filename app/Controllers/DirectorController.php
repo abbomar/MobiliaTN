@@ -10,7 +10,7 @@ class DirectorController extends BaseController
 
     public function __construct()
     {
-        $this->directorModel = model('directorModel');
+        $this->directorModel = model('DirectorModel');
     }
 
     // TODO: Only managers are allowed to make these operations

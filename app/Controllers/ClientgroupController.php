@@ -11,7 +11,7 @@ class ClientgroupController extends BaseController
 
     public function __construct()
     {
-        $this->groupModel = model('clientgroupModel');
+        $this->groupModel = model('ClientgroupModel');
     }
 
     public function index()

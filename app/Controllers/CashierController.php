@@ -10,7 +10,7 @@ class CashierController extends BaseController
 
     public function __construct()
     {
-        $this->cashierModel = model('cashierModel');
+        $this->cashierModel = model('CashierModel');
     }
 
     // TODO: Only managers are allowed to make these operations

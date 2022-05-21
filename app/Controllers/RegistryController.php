@@ -13,7 +13,7 @@ class RegistryController extends BaseController
 
     public function __construct()
     {
-        $this->registryModel = model('registryModel');
+        $this->registryModel = model('RegistryModel');
     }
 
 
@@ -26,7 +26,6 @@ class RegistryController extends BaseController
      */
     public function index($store_id)
     {
-        // TODO : Filter with store_id from the connected manager
 
         $data = $this->registryModel->select('id, registry_name, deleted_at')->where('store_id', $store_id)->withDeleted()->findAll();
 

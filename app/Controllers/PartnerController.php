@@ -12,7 +12,7 @@ class PartnerController extends BaseController
 
     public function __construct()
     {
-        $this->partnerModel = model('partnerModel');
+        $this->partnerModel = model('PartnerModel');
     }
 
     // TODO: Only admins are allowed to make these operations
