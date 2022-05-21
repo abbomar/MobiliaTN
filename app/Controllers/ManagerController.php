@@ -51,7 +51,7 @@ class ManagerController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->managerModel->find($id) == null || $this->managerModel->find($id)->store_id != $store_id )
+        if ( $this->managerModel->find($id) == null || $this->managerModel->find($id)['store_id'] != $store_id )
             return $this->fail("We cannot find a manager with this id attached to this store");
 
 
@@ -62,7 +62,7 @@ class ManagerController extends BaseController
 
     public function delete($store_id, $id)
     {
-        if ( $this->managerModel->find($id) == null || $this->managerModel->find($id)->store_id != $store_id )
+        if ( $this->managerModel->find($id) == null || $this->managerModel->find($id)['store_id'] != $store_id )
             return $this->fail("We cannot find a manager with this id attached to this store");
 
         $this->managerModel->delete($id);

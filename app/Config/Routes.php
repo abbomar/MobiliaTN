@@ -35,26 +35,30 @@ $routes->setAutoRoute(true);
 
 $routes->addPlaceholder('uuid', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
 
+$routes->group('api/v1', function ($routes){
 
-$routes->group('store/(:uuid)', function ($routes) {
+    $routes->group('store/(:uuid)', function ($routes) {
 
-    // TODO: Add filters to check if store exist or not
+        // TODO: Add filters to check if store exist or not
+        $routes->get('cashier', 'CashierController::index/$1');
+        $routes->post('cashier', 'CashierController::create/$1');
+        $routes->put('cashier/(:uuid)', 'CashierController::update/$1/$2');
 
-    $routes->get('cashier', 'CashierController::index/$1');
-    $routes->post('cashier', 'CashierController::create/$1');
-    $routes->put('cashier/(:uuid)', 'CashierController::update/$1/$2');
+        $routes->get('manager', 'ManagerController::index/$1');
+        $routes->post('manager', 'ManagerController::create/$1');
+        $routes->put('manager/(:uuid)', 'ManagerController::update/$1/$2');
 
-    $routes->get('manager', 'ManagerController::index/$1');
-    $routes->post('manager', 'ManagerController::create/$1');
-    $routes->put('manager/(:uuid)', 'ManagerController::update/$1/$2');
+        $routes->get('registry', 'RegistryController::index/$1');
+        $routes->post('registry', 'RegistryController::create/$1');
+        $routes->put('registry/(:uuid)', 'RegistryController::update/$1/$2');
+    });
+
+    $routes->resource('partner', ['controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
+    $routes->resource('director', ['controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
+
+    $routes->resource('store', ['controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
 
 });
-
-$routes->resource('partner', ['controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
-$routes->resource('director', ['controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
-
-$routes->resource('store', ['controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
-$routes->resource('registry', ['controller' => 'RegistryController', 'placeholder' => '(:uuid)'] );
 
 
 /*

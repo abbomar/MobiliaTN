@@ -42,8 +42,7 @@ class CashierController extends BaseController
 
     public function update($store_id, $id)
     {
-        echo $store_id;
-        echo  $id;
+
         $data = $this->readParamsAndValidate([
             'full_name' => 'required',
         ]);
@@ -52,7 +51,7 @@ class CashierController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->cashierModel->find($id) == null || $this->cashierModel->find($id)->store_id != $store_id )
+        if ( $this->cashierModel->find($id) == null || $this->cashierModel->find($id)['store_id'] != $store_id )
             return $this->fail("We cannot find a cashier with this id attached to this store");
 
 
@@ -63,7 +62,7 @@ class CashierController extends BaseController
 
     public function delete($store_id, $id)
     {
-        if ( $this->cashierModel->find($id) == null || $this->cashierModel->find($id)->store_id != $store_id )
+        if ( $this->cashierModel->find($id) == null || $this->cashierModel->find($id)['store_id'] != $store_id )
             return $this->fail("We cannot find a cashier with this id attached to this store");
 
         $this->cashierModel->delete($id);

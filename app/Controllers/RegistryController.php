@@ -24,11 +24,11 @@ class RegistryController extends BaseController
      *
      * @return mixed
      */
-    public function index()
+    public function index($store_id)
     {
         // TODO : Filter with store_id from the connected manager
 
-        $data = $this->registryModel->select('id, registry_name, deleted_at')->withDeleted()->findAll();
+        $data = $this->registryModel->select('id, registry_name, deleted_at')->where('store_id', $store_id)->withDeleted()->findAll();
 
         $data = Utils::replaceDeletedAt($data);
 
@@ -41,7 +41,7 @@ class RegistryController extends BaseController
      *
      * @return mixed
      */
-    public function create()
+    public function create($store_id)
     {
         $data = $this->readParamsAndValidate([
             'registry_name' => 'required',
@@ -49,9 +49,7 @@ class RegistryController extends BaseController
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
-        // TODO : Uncomment
-//        $data["store_id"] = AuthenticationHelper::getConnectedUserId($this->request)->store_id;
-        $data["store_id"] = "3537853b-98da-4276-abbb-aa50d87d2946";
+        $data["store_id"] = $store_id;
 
         $this->registryModel->insert($data);
 
@@ -64,7 +62,7 @@ class RegistryController extends BaseController
      *
      * @return mixed
      */
-    public function update($id = null)
+    public function update($store_id, $id = null)
     {
         $data = $this->readParamsAndValidate([
             'registry_name' => 'required|min_length[2]'
@@ -73,8 +71,9 @@ class RegistryController extends BaseController
         if( ! isset($data) ) {
             return $this->fail($this->validator->getErrors());
         }
+        if ( $this->registryModel->find($id) == null || $this->registryModel->find($id)['store_id'] != $store_id )
+            return $this->fail("We cannot find a registry with this id attached to this store");
 
-        if ( $this->registryModel->find($id) == null ) return $this->fail("We cannot find a registry with this id");
 
         $this->registryModel->update($id, $data);
 
