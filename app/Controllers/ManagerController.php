@@ -15,16 +15,16 @@ class ManagerController extends BaseController
 
     // TODO: Only partners or directors are allowed to make these operations
 
-    public function index()
+    public function index($store_id)
     {
-        $data = $this->managerModel->select('user_id, phone_number, full_name, deleted_at')->withDeleted()->findAll();
+        $data = $this->managerModel->select('user_id, phone_number, full_name, deleted_at')->where('store_id', $store_id)->withDeleted()->findAll();
 
         $data = Utils::replaceDeletedAt($data);
 
         return $this->responseSuccess($data);
     }
 
-    public function create()
+    public function create($store_id)
     {
 
         $data = $this->readParamsAndValidate([
@@ -34,12 +34,14 @@ class ManagerController extends BaseController
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
+        $data['store_id'] = $store_id;
+
         $this->managerModel->insert($data);
 
         return $this->responseSuccess(null, "Manager created successfully");
     }
 
-    public function update($id)
+    public function update($store_id, $id)
     {
         $data = $this->readParamsAndValidate([
             'full_name' => 'required',
@@ -49,16 +51,19 @@ class ManagerController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->managerModel->find($id) == null ) return $this->fail("We cannot find a manager with this id");
+        if ( $this->managerModel->find($id) == null || $this->managerModel->find($id)->store_id != $store_id )
+            return $this->fail("We cannot find a manager with this id attached to this store");
+
 
         $this->managerModel->update($id, $data);
 
         return $this->responseSuccess(null, "Manager updated successfully");
     }
 
-    public function delete($id)
+    public function delete($store_id, $id)
     {
-        if ( $this->managerModel->find($id) == null ) return $this->fail("We cannot find a manager with this id");
+        if ( $this->managerModel->find($id) == null || $this->managerModel->find($id)->store_id != $store_id )
+            return $this->fail("We cannot find a manager with this id attached to this store");
 
         $this->managerModel->delete($id);
 
