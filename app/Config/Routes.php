@@ -58,6 +58,12 @@ $routes->group('api/v1', function ($routes){
 
     $routes->resource('store', ['controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
 
+    $routes->group('group', function($routes){
+        $routes->get('/', 'ClientgroupController::index');
+        $routes->post('/', 'ClientgroupController::create');
+        $routes->post('(:uuid)/appendUsers', 'ClientgroupController::appendUsers/$1');
+    });
+
 });
 
 
