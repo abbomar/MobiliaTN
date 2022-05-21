@@ -3,10 +3,10 @@
 namespace App\Models;
 
 
-class ManagerModel extends UserModel
+class ClientModel extends UserModel
 {
 
-    private $role = "MANAGER";
+    private $role = "CLIENT";
 
     public function  find($id = null)
     {
