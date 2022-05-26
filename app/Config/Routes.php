@@ -39,7 +39,7 @@ $routes->group('api/v1', function ($routes){
 
     $routes->group('store/(:uuid)', function ($routes) {
 
-        // TODO: Add filters to check if store exist or not
+        // TODO: Add filters to check if store exist and the partner owns this store
         $routes->get('cashier', 'CashierController::index/$1');
         $routes->post('cashier', 'CashierController::create/$1');
         $routes->put('cashier/(:uuid)', 'CashierController::update/$1/$2');
@@ -59,9 +59,9 @@ $routes->group('api/v1', function ($routes){
     $routes->resource('store', ['controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
 
     $routes->group('group', function($routes){
-        $routes->get('/', 'ClientgroupController::index');
-        $routes->post('/', 'ClientgroupController::create');
-        $routes->post('(:uuid)/appendUsers', 'ClientgroupController::appendUsers/$1');
+        $routes->get('/', 'GroupController::index');
+        $routes->post('/', 'GroupController::create');
+        $routes->post('(:uuid)/appendUsers', 'GroupController::appendUsers/$1');
     });
 
 });
