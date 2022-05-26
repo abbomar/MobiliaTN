@@ -5,10 +5,10 @@ namespace App\Models;
 use App\Helpers\Utils;
 use CodeIgniter\Model;
 
-class ClientgroupModel extends Model
+class GroupModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'clientgroups';
+    protected $table            = 'groups';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = false;
     protected $insertID         = 0;

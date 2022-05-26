@@ -5,13 +5,13 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Helpers\Utils;
 
-class ClientgroupController extends BaseController
+class GroupController extends BaseController
 {
     private $groupModel;
 
     public function __construct()
     {
-        $this->groupModel = model('ClientgroupModel');
+        $this->groupModel = model('GroupModel');
     }
 
     public function index()
