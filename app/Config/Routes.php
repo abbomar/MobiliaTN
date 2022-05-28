@@ -37,7 +37,7 @@ $routes->addPlaceholder('uuid', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}
 
 $routes->group('api/v1', function ($routes){
 
-    $routes->group('store/(:uuid)', function ($routes) {
+    $routes->group('store/(:uuid)', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR' ], function ($routes) {
 
         // TODO: Add filters to check if store exist and the partner owns this store
         $routes->get('cashier', 'CashierController::index/$1');
@@ -53,12 +53,12 @@ $routes->group('api/v1', function ($routes){
         $routes->put('registry/(:uuid)', 'RegistryController::update/$1/$2');
     });
 
-    $routes->resource('partner', ['controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
-    $routes->resource('director', ['controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
+    $routes->resource('partner', ['filter' => 'auth-filter:ADMIN', 'controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
+    $routes->resource('director', ['filter' => 'auth-filter:MANAGER', 'controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
 
-    $routes->resource('store', ['controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
+    $routes->resource('store',  ['filter' => 'auth-filter:PARTNER', 'controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
 
-    $routes->group('group', function($routes){
+    $routes->group('group', ['filter' => 'auth-filter:ADMIN'], function($routes) {
         $routes->get('/', 'GroupController::index');
         $routes->post('/', 'GroupController::create');
         $routes->post('(:uuid)/appendUsers', 'GroupController::appendUsers/$1');
