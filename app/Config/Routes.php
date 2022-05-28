@@ -37,6 +37,8 @@ $routes->addPlaceholder('uuid', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}
 
 $routes->group('api/v1', function ($routes){
 
+    $routes->get('auth/me' , 'AuthenticationController::me');
+
     $routes->group('store/(:uuid)', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR' ], function ($routes) {
 
         // TODO: Add filters to check if store exist and the partner owns this store
