@@ -47,7 +47,7 @@ class StoreController extends BaseController
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
-        $data["partner_id"] = AuthenticationHelper::getConnectedUserId($this->request);
+        $data["partner_id"] = AuthenticationHelper::getConnectedUser($this->request)['user_id'];
 
         $this->storeModel->insert($data);
 
