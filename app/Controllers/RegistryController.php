@@ -88,4 +88,54 @@ class RegistryController extends BaseController
     {
         //
     }
+
+
+    public function totalSumByDate($store_id, $registry_id)
+    {
+        $params = $this->readParamsAndValidate([
+            'date' => 'required|valid_date'
+        ]);
+
+        if( ! isset($params) ) {
+            return $this->fail($this->validator->getErrors());
+        }
+
+        $transactionModel = Model("TransactionModel");
+        $data = $transactionModel
+            ->select("sum(total_amount) sum")
+            ->where("registry_id", $registry_id)
+            ->where("store_id", $store_id)
+            ->where('date(updated_at)', $params['date'])
+            ->groupBy("date(updated_at)")
+            ->where("status", "VALID")
+            ->findAll();
+
+        return $this->responseSuccess($data);
+    }
+
+    public function closeRegistry($store_id, $registry_id)
+    {
+        $params = $this->readParamsAndValidate([
+            'date' => 'required|valid_date'
+        ]);
+
+        $transactionModel = Model("TransactionModel");
+
+        $transactionsToBeConfirmed = $transactionModel
+            ->select('id , "CONFIRMED" as status')
+            ->where('date(updated_at)', $params['date'])
+            ->where("registry_id", $registry_id)
+            ->where("store_id", $store_id)
+            ->where("status", "VALID")
+            ->findAll();
+
+        if ( count($transactionsToBeConfirmed) > 0 )
+        {
+            $transactionModel->updateBatch($transactionsToBeConfirmed, 'id');
+        }
+
+        return $this->responseSuccess(null, "Registry closed : {$params['date']} ");
+
+    }
+
 }

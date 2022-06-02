@@ -39,20 +39,23 @@ $routes->group('api/v1', function ($routes){
 
     $routes->get('auth/me' , 'AuthenticationController::me');
 
-    $routes->group('store/(:uuid)', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ], function ($routes) {
+    $routes->group('store/(:uuid)', function ($routes) {
 
         // TODO: Add filters to check if store exist and the partner owns this store
-        $routes->get('cashier', 'CashierController::index/$1');
-        $routes->post('cashier', 'CashierController::create/$1');
-        $routes->put('cashier/(:uuid)', 'CashierController::update/$1/$2');
+        $routes->get('cashier', 'CashierController::index/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
+        $routes->post('cashier', 'CashierController::create/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
+        $routes->put('cashier/(:uuid)',  'CashierController::update/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
 
-        $routes->get('manager', 'ManagerController::index/$1');
-        $routes->post('manager', 'ManagerController::create/$1');
-        $routes->put('manager/(:uuid)', 'ManagerController::update/$1/$2');
+        $routes->get('manager',  'ManagerController::index/$1', [ 'filter' => 'auth-filter:PARTNER'  ]);
+        $routes->post('manager', 'ManagerController::create/$1', [ 'filter' => 'auth-filter:PARTNER' ]);
+        $routes->put('manager/(:uuid)',  'ManagerController::update/$1/$2',  [ 'filter' => 'auth-filter:PARTNER' ]);
 
-        $routes->get('registry', 'RegistryController::index/$1');
-        $routes->post('registry', 'RegistryController::create/$1');
-        $routes->put('registry/(:uuid)', 'RegistryController::update/$1/$2');
+        $routes->get('registry',  'RegistryController::index/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER;CASHIER']);
+        $routes->post('registry',  'RegistryController::create/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
+        $routes->put('registry/(:uuid)', 'RegistryController::update/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
+        $routes->get('registry/(:uuid)/sumByDate', 'RegistryController::totalSumByDate/$1/$2');
+        $routes->post('registry/(:uuid)/close', 'RegistryController::closeRegistry/$1/$2');
+
     });
 
     $routes->resource('partner', ['filter' => 'auth-filter:ADMIN', 'controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
@@ -64,6 +67,11 @@ $routes->group('api/v1', function ($routes){
         $routes->get('/', 'GroupController::index');
         $routes->post('/', 'GroupController::create');
         $routes->post('(:uuid)/appendUsers', 'GroupController::appendUsers/$1');
+    });
+
+    $routes->group('transaction',[] , function($routes) {
+        $routes->post('initiate', 'TransactionController::initiateTransaction');
+        $routes->post('(:uuid)/validate', 'TransactionController::validateTransaction/$1');
     });
 
 });
