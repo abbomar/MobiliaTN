@@ -37,6 +37,8 @@ $routes->addPlaceholder('uuid', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}
 
 $routes->group('api/v1', function ($routes){
 
+    $routes->post('testSMS' , "TransactionController::testSMS");
+
     $routes->get('auth/me' , 'AuthenticationController::me');
 
     $routes->group('store/(:uuid)', function ($routes) {
@@ -73,6 +75,8 @@ $routes->group('api/v1', function ($routes){
         $routes->post('initiate', 'TransactionController::initiateTransaction');
         $routes->post('(:uuid)/validate', 'TransactionController::validateTransaction/$1');
     });
+
+
 
 });
 

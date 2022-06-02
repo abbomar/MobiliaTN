@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Helpers\AuthenticationHelper;
 use App\Helpers\Utils;
 use Kreait\Firebase\Auth;
+use Ovh\Api;
 
 class TransactionController extends BaseController
 {
@@ -111,6 +112,43 @@ class TransactionController extends BaseController
 
         return $this->responseSuccess(null, "Transaction validated successfully");
 
+    }
+
+    public function testSMS()
+    {
+        $endpoint = 'ovh-eu';
+        $applicationKey = "d3f7676b74054ee1";
+        $applicationSecret = "fdbc04c9774da517b28a788ae6fe5001";
+        $consumer_key = "182d18ff7eee619d4d282f5f79e423be";
+
+        $conn = new Api(    $applicationKey,
+            $applicationSecret,
+            $endpoint,
+            $consumer_key);
+
+        $smsServices = $conn->get('/sms/');
+        foreach ($smsServices as $smsService) {
+
+            print_r($smsService);
+        }
+
+        $content = (object) array(
+            "charset"=> "UTF-8",
+            "class"=> "phoneDisplay",
+            "coding"=> "7bit",
+            "message"=> "Bonjour les SMS OVH par api.ovh.com",
+            "noStopClause"=> false,
+            "priority"=> "high",
+            "receivers"=> [ "+21624509957" ],
+            "senderForResponse"=> true,
+            "validityPeriod"=> 2880
+        );
+        $resultPostJob = $conn->post('/sms/'. $smsServices[0] . '/jobs', $content);
+
+        print_r($resultPostJob);
+
+        $smsJobs = $conn->get('/sms/'. $smsServices[0] . '/jobs');
+        print_r($smsJobs);
     }
 
     public function clientTransactionsHistory()
