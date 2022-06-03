@@ -40,7 +40,7 @@ class TransactionController extends BaseController
             return $this->failValidationErrors(["total amount cannot be less than "]);
         }*/
 
-        $client = Model('clientModel')->select('user_id, balance_amount')->where('phone_number', $data["client_phone_number"])->first();
+        $client = Model('ClientModel')->select('user_id, balance_amount')->where('phone_number', $data["client_phone_number"])->first();
 
         if ( $client == null ){
             return $this->failValidationErrors(["Cannot find a user with this phone number"]);
