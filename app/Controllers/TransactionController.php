@@ -40,10 +40,10 @@ class TransactionController extends BaseController
             return $this->failValidationErrors(["total amount cannot be less than "]);
         }*/
 
-        try{
-            $client = Model('ClientModel')->select('user_id, balance_amount')->where('phone_number', $data["client_phone_number"])->first();
-        } catch ( \Exception $e ) {
-            return $this->failValidationErrors(["Cannot find a user with this id"]);
+        $client = Model('clientModel')->select('user_id, balance_amount')->where('phone_number', $data["client_phone_number"])->first();
+
+        if ( $client == null ){
+            return $this->failValidationErrors(["Cannot find a user with this phone number"]);
         }
 
         if ( $client["balance_amount"] < $data["total_amount"] - $data["cash_amount"] ) {
@@ -102,9 +102,9 @@ class TransactionController extends BaseController
     public function testSMS()
     {
         $endpoint = 'ovh-eu';
-        $applicationKey = "d3f7676b74054ee1";
-        $applicationSecret = "fdbc04c9774da517b28a788ae6fe5001";
-        $consumer_key = "182d18ff7eee619d4d282f5f79e423be";
+        $applicationKey = "092d82f35c77c5d8";
+        $applicationSecret = "96140a4414de0a2e078d1a587dfddbdd";
+        $consumer_key = "1d614f36c2eacd1572088cfd860a41aa";
 
         $conn = new Api(    $applicationKey,
             $applicationSecret,
@@ -112,20 +112,21 @@ class TransactionController extends BaseController
             $consumer_key);
 
         $smsServices = $conn->get('/sms');
-        foreach ($smsServices as $smsService) {
+        print_r($smsServices);
 
-            print_r($smsService);
-        }
+        $smsSenders = $conn->get('/sms/' . $smsServices[0] . '/senders' );
+        print_r($smsSenders);
+
 
         $content = (object) array(
             "charset"=> "UTF-8",
             "class"=> "phoneDisplay",
             "coding"=> "7bit",
-            "message"=> "Bonjour les SMS OVH par api.ovh.com",
+            "message"=> "It's works ! Thank you ;)",
             "noStopClause"=> false,
             "priority"=> "high",
-            "receivers"=> [ "+21624509957" ],
-            "senderForResponse"=> true,
+            "receivers"=> [ "+21654866240" ],
+            "sender" => "TUNTRANSACT",
             "validityPeriod"=> 2880
         );
         $resultPostJob = $conn->post('/sms/'. $smsServices[0] . '/jobs', $content);
