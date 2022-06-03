@@ -43,6 +43,8 @@ $routes->group('api/v1', function ($routes){
 
     $routes->group('store/(:uuid)', function ($routes) {
 
+        $routes->get("stats", 'StoreController::stats/$1');
+
         // TODO: Add filters to check if store exist and the partner owns this store
         $routes->get('cashier', 'CashierController::index/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
         $routes->post('cashier', 'CashierController::create/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);

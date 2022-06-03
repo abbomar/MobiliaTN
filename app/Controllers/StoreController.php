@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Helpers\AuthenticationHelper;
 use App\Helpers\Utils;
+use CodeIgniter\Model;
 
 class StoreController extends BaseController
 {
@@ -82,5 +83,48 @@ class StoreController extends BaseController
     public function delete($id = null)
     {
         //
+    }
+
+    public function stats($store_id)
+    {
+
+        $data = $this->readParamsAndValidate([
+            'group_by' => 'required|in_list[day,week,month,year]',
+        ]);
+
+        if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
+
+
+        switch ($data["group_by"])
+        {
+            case "day":
+                $sql_group_by = "DAY(updated_at), MONTH(updated_at), YEAR(updated_at)";
+                $format_date = "DATE_FORMAT(updated_at, '%D %b %Y')";
+                break;
+            case "week":
+                $sql_group_by = "WEEK(updated_at), YEAR(updated_at)";
+                $format_date = "DATE_FORMAT(updated_at, 'Semaine %U du %Y')";
+                break;
+            case "month":
+                $sql_group_by = "MONTH(updated_at) + '-' + YEAR(updated_at)";
+                $format_date = "DATE_FORMAT(updated_at, '%b %Y')";
+                break;
+            case "year":
+                $sql_group_by = "YEAR(updated_at)";
+                $format_date = "DATE_FORMAT(updated_at, '%Y')";
+                break;
+        }
+
+        $transactionModel = model("transactionModel");
+
+        $data = $transactionModel
+            ->select("DATE_FORMAT(updated_at, $format_date ) as date ,  sum(total_amount) as total_amount")
+            ->where("status", "CONFIRMED")
+            ->where("store_id", $store_id)
+            ->groupBy($sql_group_by)
+            ->findAll();
+
+        return $this->responseSuccess($data);
+
     }
 }
