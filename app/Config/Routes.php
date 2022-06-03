@@ -41,6 +41,9 @@ $routes->group('api/v1', function ($routes){
 
     $routes->get('auth/me' , 'AuthenticationController::me');
 
+    $routes->get("stats/adminDetailsStats", "StatsController::adminDetailsStats");
+    $routes->get("stats/adminSummaryStats", "StatsController::adminSummaryStats");
+
     $routes->group('store/(:uuid)', function ($routes) {
 
         $routes->get("stats", 'StoreController::stats/$1');
