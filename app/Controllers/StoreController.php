@@ -115,7 +115,7 @@ class StoreController extends BaseController
                 break;
         }
 
-        $transactionModel = model("transactionModel");
+        $transactionModel = model("TransactionModel");
 
         $data = $transactionModel
             ->select("DATE_FORMAT(updated_at, $format_date ) as date ,  sum(total_amount) as total_amount")

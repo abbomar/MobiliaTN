@@ -18,7 +18,7 @@ class AuthenticationController extends BaseController
 
         if ( $user["role"] == "PARTNER" )
         {
-            $transactionModel = Model("transactionModel");
+            $transactionModel = Model("TransactionModel");
             $sum = $transactionModel
                 ->select("sum(total_amount) as sum")
                 ->join("stores", "stores.id = transactions.store_id")
