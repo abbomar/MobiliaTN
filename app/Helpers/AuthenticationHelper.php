@@ -21,7 +21,7 @@ class AuthenticationHelper {
 
             $phone_number = $verifiedIdToken->claims()->get('phone_number');
 
-            $user = (New UserModel())->select('user_id, full_name, phone_number, role, store_id, group_id')->where('phone_number', $phone_number)->findAll();
+            $user = (New UserModel())->select('user_id, full_name, balance_amount, phone_number, role, store_id, group_id')->where('phone_number', $phone_number)->findAll();
 
 
             if ( $user == null || count($user) == 0 ) return null;

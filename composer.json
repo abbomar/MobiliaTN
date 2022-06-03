@@ -14,7 +14,8 @@
         "laminas/laminas-escaper": "^2.9",
         "psr/log": "^1.1",
         "kreait/firebase-php": "^6.2",
-        "bugsnag/bugsnag-symfony": "^1.6"
+        "bugsnag/bugsnag-symfony": "^1.6",
+        "ovh/ovh": "^3.0"
     },
     "require-dev": {
         "codeigniter/coding-standard": "^1.1",

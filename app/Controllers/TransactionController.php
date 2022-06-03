@@ -18,21 +18,6 @@ class TransactionController extends BaseController
         $this->transactionModel = model('TransactionModel');
     }
 
-    public function index($store_id)
-    {
-        $cashier = AuthenticationHelper::getConnectedUser($this->request);
-        if ( $cashier["store_id"] != $store_id ) {
-            return $this->failUnauthorized("You're not allowed to acces transactions of this store");
-        }
-
-        $data = $this->transactionModel
-            ->select('id, total_amount, cash_amount, created_at as date')
-            ->where("store_id", $store_id )
-            ->findAll();
-
-        return $this->responseSuccess($data);
-    }
-
 
     public function initiateTransaction()
     {
@@ -126,7 +111,7 @@ class TransactionController extends BaseController
             $endpoint,
             $consumer_key);
 
-        $smsServices = $conn->get('/sms/');
+        $smsServices = $conn->get('/sms');
         foreach ($smsServices as $smsService) {
 
             print_r($smsService);
@@ -175,18 +160,15 @@ class TransactionController extends BaseController
     public function cashierTransactionsHistory()
     {
         $cashier = AuthenticationHelper::getConnectedUser($this->request);
-        if ( $cashier == null ) {
-            return $this->failUnauthorized();
-        }
-        else {
-            $cashier_id = $cashier["user_id"];
-        }
+        $cashier_id = $cashier["user_id"];
 
         $data = $this->transactionModel
+            ->select('transactions.id, transactions.client_id, users.full_name, status, total_amount, cash_amount, transactions.created_at')
             ->join('stores','stores.id = transactions.store_id')
+            ->join('users','users.user_id = transactions.client_id')
             ->select('transactions.id, store_name, total_amount, cash_amount, transactions.updated_at')
-            ->where('status', 'VALID')
-            ->where('client_id',  $cashier_id)
+            ->where('status !=', 'CREATED')
+            ->where('cashier_id',  $cashier_id)
             ->findAll();
 
         return $this->responseSuccess($data);
