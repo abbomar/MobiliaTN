@@ -44,6 +44,12 @@ $routes->group('api/v1', function ($routes){
     $routes->get("stats/adminDetailsStats", "StatsController::adminDetailsStats");
     $routes->get("stats/adminSummaryStats", "StatsController::adminSummaryStats");
 
+    $routes->group('brand', function ($routes) {
+        $routes->get("", "BrandController::index");
+        $routes->post("", "BrandController::create");
+        $routes->put("(:uuid)", "BrandController::update/$1");
+    });
+
     $routes->group('store/(:uuid)', function ($routes) {
 
         $routes->get("stats", 'StoreController::stats/$1');
