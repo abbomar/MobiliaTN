@@ -27,7 +27,11 @@ class StoreController extends BaseController
     {
         // TODO: Filter to connected partner_id
 
-        $data = $this->storeModel->select('id, store_name, deleted_at')->withDeleted()->findAll();
+        $data = $this->storeModel
+            ->select('id, store_name, deleted_at')
+            ->withDeleted()
+            ->orderBy("store_name")
+            ->findAll();
 
         $data = Utils::replaceDeletedAt($data);
 

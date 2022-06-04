@@ -17,7 +17,12 @@ class ManagerController extends BaseController
 
     public function index($store_id)
     {
-        $data = $this->managerModel->select('user_id, phone_number, full_name, deleted_at')->where('store_id', $store_id)->withDeleted()->findAll();
+        $data = $this->managerModel
+            ->select('user_id, phone_number, full_name, deleted_at')
+            ->where('store_id', $store_id)
+            ->withDeleted()
+            ->orderBy("full_name")
+            ->findAll();
 
         $data = Utils::replaceDeletedAt($data);
 

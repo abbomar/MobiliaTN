@@ -17,7 +17,11 @@ class DirectorController extends BaseController
 
     public function index()
     {
-        $data = $this->directorModel->select('user_id, phone_number, full_name, deleted_at')->withDeleted()->findAll();
+        $data = $this->directorModel
+            ->select('user_id, phone_number, full_name, deleted_at')
+            ->withDeleted()
+            ->orderBy("full_name")
+            ->findAll();
 
         $data = Utils::replaceDeletedAt($data);
 

@@ -19,7 +19,11 @@ class PartnerController extends BaseController
 
     public function index()
     {
-        $data = $this->partnerModel->select('user_id, phone_number, full_name, deleted_at')->withDeleted()->findAll();
+        $data = $this->partnerModel
+            ->select('user_id, phone_number, full_name, deleted_at')
+            ->withDeleted()
+            ->orderBy('full_name')
+            ->findAll();
 
         $data = Utils::replaceDeletedAt($data);
 
