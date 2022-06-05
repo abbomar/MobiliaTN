@@ -56,7 +56,7 @@ class TransactionController extends BaseController
         $data["client_id"] = $client["user_id"];
         $data["otp"] = rand(100000,999999);
 
-        $this->sendSMS($data["client_phone_number"], "{$data["otp"]} est le code de la transaction. Total = {$data["total_amount"]} dont {$data["cash_amount"]} ");
+        $this->sendSMS($data["client_phone_number"], "{$data["otp"]} est le code de la transaction. Total = {$data["total_amount"]} DT dont {$data["cash_amount"]} DT en espèces");
 
         unset($data["client_phone_number"]);
 
