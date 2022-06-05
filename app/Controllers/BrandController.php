@@ -20,7 +20,7 @@ class BrandController extends BaseController
     {
         $data = $this->brandModel->select("id, brand_name, logo, deleted_at")->findAll();
         $data = Utils::replaceDeletedAt($data);
-        $this->responseSuccess($data);
+        return $this->responseSuccess($data);
     }
 
     public function create()
