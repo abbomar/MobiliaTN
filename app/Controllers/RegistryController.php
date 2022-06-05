@@ -31,7 +31,7 @@ class RegistryController extends BaseController
             ->select('id, registry_name, deleted_at')
             ->where('store_id', $store_id)
             ->withDeleted()
-            ->orderBy("full_name")
+            ->orderBy("registry_name")
             ->findAll();
 
         $data = Utils::replaceDeletedAt($data);
