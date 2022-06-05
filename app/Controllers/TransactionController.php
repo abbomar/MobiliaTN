@@ -42,7 +42,7 @@ class TransactionController extends BaseController
 
         $client = Model('ClientModel')->select('user_id, balance_amount')->where('phone_number', $data["client_phone_number"])->first();
 
-        if ( $client == null ){
+        if ( $client == null ) {
             return $this->failValidationErrors(["Cannot find a user with this phone number"]);
         }
 
@@ -55,6 +55,9 @@ class TransactionController extends BaseController
         $data["cashier_id"] = $cashier["user_id"];
         $data["client_id"] = $client["user_id"];
         $data["otp"] = rand(100000,999999);
+
+        $this->sendSMS($data["client_phone_number"], "{$data["otp"]} est le code de la transaction. Total = {$data["total_amount"]} dont {$data["cash_amount"]} ");
+
         unset($data["client_phone_number"]);
 
         $insertion_id = $this->transactionModel->insert($data);
@@ -99,7 +102,7 @@ class TransactionController extends BaseController
 
     }
 
-    public function testSMS()
+    public function sendSMS($phone_number, $message)
     {
         $endpoint = 'ovh-eu';
         $applicationKey = "092d82f35c77c5d8";
@@ -112,29 +115,29 @@ class TransactionController extends BaseController
             $consumer_key);
 
         $smsServices = $conn->get('/sms');
-        print_r($smsServices);
+        //print_r($smsServices);
 
         $smsSenders = $conn->get('/sms/' . $smsServices[0] . '/senders' );
-        print_r($smsSenders);
+        //print_r($smsSenders);
 
 
         $content = (object) array(
             "charset"=> "UTF-8",
             "class"=> "phoneDisplay",
             "coding"=> "7bit",
-            "message"=> "It's works ! Thank you ;)",
+            "message"=> $message,
             "noStopClause"=> false,
             "priority"=> "high",
-            "receivers"=> [ "+21654866240" ],
+            "receivers"=> [ $phone_number ],
             "sender" => "TUNTRANSACT",
             "validityPeriod"=> 2880
         );
         $resultPostJob = $conn->post('/sms/'. $smsServices[0] . '/jobs', $content);
 
-        print_r($resultPostJob);
+        //print_r($resultPostJob);
 
         $smsJobs = $conn->get('/sms/'. $smsServices[0] . '/jobs');
-        print_r($smsJobs);
+        //print_r($smsJobs);
     }
 
     public function clientTransactionsHistory()
