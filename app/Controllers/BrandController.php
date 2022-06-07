@@ -28,25 +28,21 @@ class BrandController extends BaseController
 
         $data = $this->brandModel->select("logo")->find($brand_id);
         if ( $data == null ) {
-            return $this->fail();
+            return $this->failNotFound();
         }
 
+        $this->response->setHeader('Content-Type' , 'image/png; charset=utf-8');
 
-        $file =  './temp/' . Utils::generateRandomUUID() . '.png';
-        file_put_contents($file, $data["logo"]);
+        $base64 = $data["logo"];
 
-        if (file_exists($file)) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.basename($file).'"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($file));
-            readfile($file);
-            unlink($file);
-            exit;
+        if ( $base64[0] == 'd' && $base64[1]=='a' ) {
+            $data = explode( ',', $base64 );
+            $this->response->setBody(base64_decode($data[1]));
+        } else {
+            $this->response->setBody(base64_decode($base64));
         }
+
+        return $this->response;
 
     }
 
