@@ -150,11 +150,10 @@ class TransactionController extends BaseController
             $client_id = $client["user_id"];
         }
 
-
         $data = $this->transactionModel
             ->join('stores','stores.id = transactions.store_id')
             ->select('transactions.id, store_name, total_amount, cash_amount, transactions.updated_at')
-            ->where('status', 'VALID')
+            ->where('status != ', 'CREATED')
             ->where('client_id',  $client_id)
             ->findAll();
 

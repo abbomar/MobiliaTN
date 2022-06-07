@@ -86,6 +86,7 @@ $routes->group('api/v1', function ($routes){
 
     $routes->group('transaction', [/*'filter' => 'auth-filter:CASHIER'*/] , function($routes) {
         $routes->get('cashierHistory', 'TransactionController::cashierTransactionsHistory' );
+        $routes->get('clientHistory', 'TransactionController::clientTransactionsHistory' );
         $routes->post('initiate', 'TransactionController::initiateTransaction');
         $routes->post('(:uuid)/validate', 'TransactionController::validateTransaction/$1');
     });
