@@ -46,6 +46,7 @@ $routes->group('api/v1', function ($routes){
 
     $routes->group('brand', function ($routes) {
         $routes->get("/", "BrandController::index");
+        $routes->get("(:uuid)/logo", "BrandController::getImage/$1" );
         $routes->post("/", "BrandController::create");
         $routes->put("(:uuid)", "BrandController::update/$1");
     });
