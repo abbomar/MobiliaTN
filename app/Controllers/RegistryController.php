@@ -84,14 +84,15 @@ class RegistryController extends BaseController
         return $this->responseSuccess(null, "Registry updated successfully");
     }
 
-    /**
-     * Delete the designated resource object from the model
-     *
-     * @return mixed
-     */
-    public function delete($id = null)
+
+    public function delete($store_id, $id)
     {
-        //
+        if ( $this->registryModel->find($id) == null || $this->registryModel->find($id)['store_id'] != $store_id )
+            return $this->fail("We cannot find a registry with this id attached to this store");
+
+        $this->registryModel->delete($id);
+
+        return $this->responseSuccess(null, "Cashier $id blocked successfully");
     }
 
 
