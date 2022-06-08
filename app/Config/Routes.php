@@ -35,7 +35,7 @@ $routes->setAutoRoute(true);
 
 $routes->addPlaceholder('uuid', '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
 
-$routes->group('api/v1', function ($routes){
+$routes->group('api/v1', function ($routes) {
 
     $routes->post('testSMS' , "TransactionController::testSMS");
 
@@ -59,14 +59,17 @@ $routes->group('api/v1', function ($routes){
         $routes->get('cashier', 'CashierController::index/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
         $routes->post('cashier', 'CashierController::create/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
         $routes->put('cashier/(:uuid)',  'CashierController::update/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
+        $routes->delete('cashier/(:uuid)',  'CashierController::delete/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER']);
 
         $routes->get('manager',  'ManagerController::index/$1', [ 'filter' => 'auth-filter:PARTNER'  ]);
         $routes->post('manager', 'ManagerController::create/$1', [ 'filter' => 'auth-filter:PARTNER' ]);
         $routes->put('manager/(:uuid)',  'ManagerController::update/$1/$2',  [ 'filter' => 'auth-filter:PARTNER' ]);
+        $routes->delete('manager/(:uuid)',  'ManagerController::delete/$1/$2',  [ 'filter' => 'auth-filter:PARTNER' ]);
 
         $routes->get('registry',  'RegistryController::index/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER;CASHIER']);
         $routes->post('registry',  'RegistryController::create/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
         $routes->put('registry/(:uuid)', 'RegistryController::update/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
+        $routes->delete('registry/(:uuid)', 'RegistryController::delete/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
         $routes->get('registry/(:uuid)/sumByDate', 'RegistryController::totalSumByDate/$1/$2');
         $routes->post('registry/(:uuid)/close', 'RegistryController::closeRegistry/$1/$2');
 
@@ -74,13 +77,14 @@ $routes->group('api/v1', function ($routes){
 
     $routes->resource('partner', ['filter' => 'auth-filter:ADMIN', 'controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
     $routes->resource('director', ['filter' => 'auth-filter:MANAGER', 'controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
-
     $routes->resource('store',  ['filter' => 'auth-filter:PARTNER', 'controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
 
     $routes->group('group', ['filter' => 'auth-filter:ADMIN'], function($routes) {
         $routes->get('/', 'GroupController::index');
         $routes->post('/', 'GroupController::create');
+        $routes->get('(:uuid)/users', 'GroupController::getGroupUsers/$1');
         $routes->post('(:uuid)/appendUsers', 'GroupController::appendUsers/$1');
+        $routes->delete('(:uuid)/blockUsers', 'GroupController::blockUsers/$1');
     });
 
 
