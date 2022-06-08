@@ -102,6 +102,13 @@ class GroupController extends BaseController
         return $this->responseSuccess(null, "$validRecords nouveaux utilisateurs créés sur $totalRecords lignes trouvées");
     }
 
+    public function delete($group_id) {
+        $clientModel = model('ClientModel');
+        $clientModel->where("group_id",$group_id)->delete();
+
+        $this->groupModel->delete($group_id);
+        return $this->responseSuccess(null, "Le groupe $group_id a été bloqué avec success");
+    }
 
     public function blockUsers($group_id) {
 

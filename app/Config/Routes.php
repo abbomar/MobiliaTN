@@ -79,12 +79,14 @@ $routes->group('api/v1', function ($routes) {
     $routes->resource('director', ['filter' => 'auth-filter:MANAGER', 'controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
     $routes->resource('store',  ['filter' => 'auth-filter:PARTNER', 'controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
 
-    $routes->group('group', ['filter' => 'auth-filter:ADMIN'], function($routes) {
+    $routes->group('group',  function($routes) {
         $routes->get('/', 'GroupController::index');
         $routes->post('/', 'GroupController::create');
         $routes->get('(:uuid)/users', 'GroupController::getGroupUsers/$1');
         $routes->post('(:uuid)/appendUsers', 'GroupController::appendUsers/$1');
-        $routes->delete('(:uuid)/blockUsers', 'GroupController::blockUsers/$1');
+
+        $routes->delete('(:uuid)', 'GroupController::delete/$1');
+        //$routes->delete('(:uuid)/blockUsers', 'GroupController::blockUsers/$1');
     });
 
 
