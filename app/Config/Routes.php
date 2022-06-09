@@ -76,7 +76,7 @@ $routes->group('api/v1', function ($routes) {
     });
 
     $routes->resource('partner', ['filter' => 'auth-filter:ADMIN', 'controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
-    $routes->resource('director', ['filter' => 'auth-filter:MANAGER', 'controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
+    $routes->resource('director', ['filter' => 'auth-filter:PARTNER;MANAGER', 'controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
     $routes->resource('store',  ['filter' => 'auth-filter:PARTNER', 'controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
 
     $routes->group('group',  function($routes) {
