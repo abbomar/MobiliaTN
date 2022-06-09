@@ -42,12 +42,13 @@ class GroupController extends BaseController
         return $this->responseSuccess(null, "Group created successfully");
     }
 
-    public function getGroupUsers()
+    public function getGroupUsers($group_id)
     {
         $clientModel = Model("ClientModel");
 
         $data = $clientModel
             ->select('id, phone_number, deleted_at')
+            ->where("group_id", $group_id)
             ->withDeleted()
             ->orderBy("phone_number")
             ->findAll();
