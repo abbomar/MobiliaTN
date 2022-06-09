@@ -49,7 +49,7 @@ class ManagerController extends BaseController
     public function update($store_id, $id)
     {
         $data = $this->readParamsAndValidate([
-            'phone_number' => 'exact_length[12]|regex_match[\+216[0-9]{8}]|is_unique[users.phone_number]',
+            'phone_number' => 'exact_length[12]|regex_match[\+216[0-9]{8}]',
             'full_name' => 'required',
         ]);
 
@@ -57,8 +57,14 @@ class ManagerController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->managerModel->find($id) == null || $this->managerModel->find($id)['store_id'] != $store_id )
+        $manager = $this->managerModel->find($id);
+
+        if ( $manager == null || $this->managerModel->withDeleted()->find($id)['store_id'] != $store_id )
             return $this->fail("We cannot find a manager with this id attached to this store");
+
+        $userModel = Model("UserModel");
+        if ( $data["phone_number"] != $manager["phone_number"] && count($this->userModel->where("phone_number", $data["phone_number"])->findAll()) > 0 )
+            return $this->fail("Phone number already used by another user");
 
 
         $this->managerModel->update($id, $data);
