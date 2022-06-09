@@ -82,22 +82,23 @@ class GroupController extends BaseController
         $totalRecords = count($usersArray);
         $validRecords = 0;
 
-        $userModel->db->transBegin();
+        //$userModel->db->transBegin();
 
         foreach ($usersArray as $user) {
             $row = [
-                "phone_number" => "+216{$user["phone_number"]}",
+                "phone_number" => $user["phone_number"],
                 "full_name" => "import test",
                 "group_id" => $group_id,
             ];
+
             try {
-                $userModel->insert($row);
-                $validRecords ++;
+                if ( $userModel->insert($row) )
+                    $validRecords ++;
             } catch(\Exception $e) {
             }
         }
 
-        $userModel->db->transComplete();
+        //$userModel->db->transComplete();
 
         return $this->responseSuccess(null, "$validRecords nouveaux utilisateurs créés sur $totalRecords lignes trouvées");
     }
@@ -132,7 +133,7 @@ class GroupController extends BaseController
         $totalRecords = count($usersArray);
         $validRecords = 0;
 
-        $clientModel->db->transBegin();
+        //$clientModel->db->transBegin();
 
         foreach ($usersArray as $user) {
             try {
@@ -142,7 +143,7 @@ class GroupController extends BaseController
             }
         }
 
-        $clientModel->db->transComplete();
+        //$clientModel->db->transComplete();
         return $this->responseSuccess(null, "$validRecords nouveaux utilisateurs créés sur $totalRecords lignes trouvées");
     }
 
