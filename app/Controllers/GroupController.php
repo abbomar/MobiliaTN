@@ -47,7 +47,7 @@ class GroupController extends BaseController
         $clientModel = Model("ClientModel");
 
         $data = $clientModel
-            ->select('id, phone_number, deleted_at')
+            ->select('user_id, phone_number, deleted_at')
             ->where("group_id", $group_id)
             ->withDeleted()
             ->orderBy("phone_number")
