@@ -57,8 +57,14 @@ class CashierController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->cashierModel->find($id) == null || $this->cashierModel->find($id)['store_id'] != $store_id )
+        $cashier = $this->cashierModel->find($id);
+
+        if ( $cashier == null || $this->cashierModel->withDeleted()->find($id)['store_id'] != $store_id )
             return $this->fail("We cannot find a cashier with this id attached to this store");
+
+        $userModel = Model("UserModel");
+        if ( isset($data["phone_number"]) && $data["phone_number"] != $cashier["phone_number"] && count($userModel->withDeleted()->where("phone_number", $data["phone_number"])->findAll()) > 0 )
+            return $this->failValidationErrors("Phone number already used by another user" , "PHONE_NUMBER_ALREADY_USED" );
 
 
         $this->cashierModel->update($id, $data);

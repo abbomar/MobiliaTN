@@ -63,8 +63,8 @@ class ManagerController extends BaseController
             return $this->fail("We cannot find a manager with this id attached to this store");
 
         $userModel = Model("UserModel");
-        if ( $data["phone_number"] != $manager["phone_number"] && count($this->userModel->where("phone_number", $data["phone_number"])->findAll()) > 0 )
-            return $this->fail("Phone number already used by another user");
+        if (  isset($data["phone_number"]) &&  $data["phone_number"] != $manager["phone_number"] && count($userModel->withDeleted()->where("phone_number", $data["phone_number"])->findAll()) > 0 )
+            return $this->failValidationErrors("Phone number already used by another user" , "PHONE_NUMBER_ALREADY_USED" );
 
 
         $this->managerModel->update($id, $data);

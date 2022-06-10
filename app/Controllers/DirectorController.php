@@ -54,7 +54,14 @@ class DirectorController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->directorModel->find($id) == null ) return $this->fail("We cannot find a director with this id");
+        $director = $this->directorModel->find($id);
+
+        if ( $director == null  )
+            return $this->fail("We cannot find a director with this id");
+
+        $userModel = Model("UserModel");
+        if ( isset($data["phone_number"]) && $data["phone_number"] != $director["phone_number"] && count($userModel->withDeleted()->where("phone_number", $data["phone_number"])->findAll()) > 0 )
+            return $this->failValidationErrors("Phone number already used by another user" , "PHONE_NUMBER_ALREADY_USED" );
 
         $this->directorModel->update($id, $data);
 

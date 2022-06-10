@@ -56,7 +56,15 @@ class PartnerController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        if ( $this->partnerModel->find($id) == null ) return $this->fail("We cannot find a partner with this id");
+        $partner = $this->partnerModel->find($id);
+
+        if ( $partner == null )
+            return $this->failValidationErrors("We cannot find a partner with this id");
+
+        $userModel = Model("UserModel");
+        if (  isset($data["phone_number"]) &&  $data["phone_number"] != $partner["phone_number"] && count($userModel->withDeleted()->where("phone_number", $data["phone_number"])->findAll()) > 0 )
+            return $this->failValidationErrors("Phone number already used by another user" , "PHONE_NUMBER_ALREADY_USED" );
+
 
         $this->partnerModel->update($id, $data);
 
