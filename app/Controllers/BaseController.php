@@ -54,6 +54,7 @@ class BaseController extends Controller
         $db = \Config\Database::connect();
 
 
+        $db->query("SET lc_time_names = 'fr_FR';");
         // E.g.: $this->session = \Config\Services::session();
     }
 

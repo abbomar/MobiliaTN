@@ -103,15 +103,15 @@ class StoreController extends BaseController
         {
             case "day":
                 $sql_group_by = "DAY(updated_at), MONTH(updated_at), YEAR(updated_at)";
-                $format_date = "DATE_FORMAT(updated_at, '%D %b %Y')";
+                $format_date = "DATE_FORMAT(updated_at, '%d %M %Y')";
                 break;
             case "week":
-                $sql_group_by = "WEEK(updated_at), YEAR(updated_at)";
-                $format_date = "DATE_FORMAT(updated_at, 'Semaine %U du %Y')";
+                $sql_group_by = "WEEK(updated_at, 7), YEAR(updated_at)";
+                $format_date = "concat( DATE_FORMAT( STR_TO_DATE(DATE_FORMAT(updated_at, '%Y%v Monday'), '%x%v %W'), '%d/%m') , ' - ' , DATE_FORMAT( STR_TO_DATE(DATE_FORMAT(updated_at, '%Y%v Sunday'), '%x%v %W'), '%d/%m') ) ";
                 break;
             case "month":
-                $sql_group_by = "MONTH(updated_at) + '-' + YEAR(updated_at)";
-                $format_date = "DATE_FORMAT(updated_at, '%b %Y')";
+                $sql_group_by = "MONTH(updated_at), YEAR(updated_at)";
+                $format_date = "DATE_FORMAT(updated_at, '%M %Y')";
                 break;
             case "year":
                 $sql_group_by = "YEAR(updated_at)";
