@@ -72,6 +72,8 @@ $routes->group('api/v1', function ($routes) {
         $routes->delete('registry/(:uuid)', 'RegistryController::delete/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
         $routes->get('registry/(:uuid)/sumByDate', 'RegistryController::totalSumByDate/$1/$2');
         $routes->post('registry/(:uuid)/close', 'RegistryController::closeRegistry/$1/$2');
+        $routes->get('registry/(:uuid)/stats', 'RegistryController::stats/$1/$2');
+        $routes->get('registry/(:uuid)/listTransactions', 'RegistryController::listTransactions/$1/$2');
 
     });
 

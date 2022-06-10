@@ -112,8 +112,8 @@ class RegistryController extends BaseController
             ->where("registry_id", $registry_id)
             ->where("store_id", $store_id)
             ->where('date(updated_at)', $params['date'])
-            ->groupBy("date(updated_at)")
             ->where("status", "VALID")
+            ->groupBy("date(updated_at)")
             ->findAll();
 
         return $this->responseSuccess($data);
@@ -141,7 +141,48 @@ class RegistryController extends BaseController
         }
 
         return $this->responseSuccess(null, "Registry closed : {$params['date']} ");
+    }
 
+
+    public function stats($store_id, $registry_id)
+    {
+
+        $transactionModel = model("TransactionModel");
+
+        $data = $transactionModel
+            ->select("DATE_FORMAT(updated_at, '%d %M %Y' ) as date ,  sum(total_amount) as total_amount")
+            ->where("status", "CONFIRMED")
+            ->where("registry_id", $registry_id)
+            ->groupBy("date(updated_at)")
+            ->orderBy("updated_at desc")
+            ->findAll();
+
+        return $this->responseSuccess($data);
+    }
+
+
+    public function listTransactions($store_id, $registry_id)
+    {
+        $params = $this->readParamsAndValidate([
+            'group_by' => 'required|in_list[day,week,month,year]',
+            'date' => 'valid_date'
+        ]);
+
+        if( ! isset($params) ) { return $this->fail($this->validator->getErrors()); }
+
+
+        $transactionModel = model("TransactionModel");
+
+        $data = $transactionModel
+            ->select("DATE_FORMAT(transactions.updated_at, '%d %M %Y') as date, cashiers.full_name as cashier_name,  transactions.total_amount as total_amount")
+            ->where("status", "CONFIRMED")
+            ->where("registry_id", $registry_id)
+            ->where("date(transactions.updated_at)", $params["date"])
+            ->join("users as cashiers", "cashiers.user_id = transactions.cashier_id")
+            ->orderBy("updated_at desc")
+            ->findAll();
+
+        return $this->responseSuccess($data);
     }
 
 }
