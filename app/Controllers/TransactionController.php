@@ -35,19 +35,19 @@ class TransactionController extends BaseController
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
-        /*if ( $data["total_amount"] < $data["cash_amount"] )
+        if ( $data["total_amount"] < $data["cash_amount"] )
         {
-            return $this->failValidationErrors(["total amount cannot be less than "]);
-        }*/
+            return $this->failValidationErrors(["total amount cannot be less than "], "CASH_GREATER_THAN_TOTAL");
+        }
 
         $client = Model('ClientModel')->select('user_id, balance_amount')->where('phone_number', $data["client_phone_number"])->first();
 
         if ( $client == null ) {
-            return $this->failValidationErrors(["Cannot find a user with this phone number"]);
+            return $this->failValidationErrors(["Cannot find a user with this phone number"], "CLIENT_NOT_FOUND");
         }
 
         if ( $client["balance_amount"] < $data["total_amount"] - $data["cash_amount"] ) {
-            return $this->failValidationErrors(["User don't have enough credits"]);
+            return $this->failValidationErrors(["User don't have enough credits"], "NOT_ENOUGH_CREDITS");
         }
 
         $data["status"] = "CREATED";
