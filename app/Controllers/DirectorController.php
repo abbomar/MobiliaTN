@@ -46,7 +46,7 @@ class DirectorController extends BaseController
     public function update($id)
     {
         $data = $this->readParamsAndValidate([
-            'phone_number' => 'exact_length[12]|regex_match[\+216[0-9]{8}]|is_unique[users.phone_number]',
+            'phone_number' => 'exact_length[12]|regex_match[\+216[0-9]{8}]',
             'full_name' => 'required',
         ]);
 
