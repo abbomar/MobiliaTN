@@ -179,7 +179,7 @@ class RegistryController extends BaseController
             ->where("registry_id", $registry_id)
             ->where("date(transactions.updated_at)", $params["date"])
             ->join("users as cashiers", "cashiers.user_id = transactions.cashier_id")
-            ->orderBy("updated_at desc")
+            ->orderBy("transactions.updated_at desc")
             ->findAll();
 
         return $this->responseSuccess($data);
