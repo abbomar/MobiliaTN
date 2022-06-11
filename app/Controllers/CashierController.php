@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Helpers\AuthenticationHelper;
 use App\Helpers\Utils;
 
 class CashierController extends BaseController
@@ -13,7 +14,6 @@ class CashierController extends BaseController
         $this->cashierModel = model('CashierModel');
     }
 
-    // TODO: Only managers are allowed to make these operations
 
     public function index($store_id)
     {
@@ -39,6 +39,7 @@ class CashierController extends BaseController
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
         $data['store_id'] = $store_id;
+        $data['created_by'] = AuthenticationHelper::getConnectedUser($this->request)["user_id"];
 
         $this->cashierModel->insert($data);
 

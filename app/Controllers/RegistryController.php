@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Helpers\AuthenticationHelper;
 use App\Helpers\Utils;
 use CodeIgniter\RESTful\ResourceController;
+use Kreait\Firebase\Auth;
 
 class RegistryController extends BaseController
 {
@@ -17,16 +18,9 @@ class RegistryController extends BaseController
     }
 
 
-    // TODO: Only managers can perform these opeations
 
-    /**
-     * Return an array of resource objects, themselves in array format
-     *
-     * @return mixed
-     */
     public function index($store_id)
     {
-
         $data = $this->registryModel
             ->select('id, registry_name, deleted_at')
             ->where('store_id', $store_id)
@@ -40,11 +34,6 @@ class RegistryController extends BaseController
     }
 
 
-    /**
-     * Create a new resource object, from "posted" parameters
-     *
-     * @return mixed
-     */
     public function create($store_id)
     {
         $data = $this->readParamsAndValidate([
@@ -54,6 +43,7 @@ class RegistryController extends BaseController
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
         $data["store_id"] = $store_id;
+        $data["created_by"] = AuthenticationHelper::getConnectedUser($this->request)["user_id"];
 
         $this->registryModel->insert($data);
 
@@ -61,11 +51,6 @@ class RegistryController extends BaseController
     }
 
 
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return mixed
-     */
     public function update($store_id, $id = null)
     {
         $data = $this->readParamsAndValidate([
@@ -128,12 +113,18 @@ class RegistryController extends BaseController
         $transactionModel = Model("TransactionModel");
 
         $transactionsToBeConfirmed = $transactionModel
-            ->select('id , "CONFIRMED" as status')
+            ->select('id')
             ->where('date(updated_at)', $params['date'])
             ->where("registry_id", $registry_id)
             ->where("store_id", $store_id)
             ->where("status", "VALID")
             ->findAll();
+
+        $manager_id = AuthenticationHelper::getConnectedUser($this->request)["user_id"];
+        foreach ($transactionsToBeConfirmed as &$row) {
+            $row["status"] = "CONFIRMED";
+            $row["confirmed_by"] = $manager_id;
+        }
 
         if ( count($transactionsToBeConfirmed) > 0 )
         {

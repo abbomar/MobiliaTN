@@ -45,41 +45,50 @@ $routes->group('api/v1', function ($routes) {
     $routes->get("stats/adminSummaryStats", "StatsController::adminSummaryStats");
 
     $routes->group('brand', function ($routes) {
-        $routes->get("/", "BrandController::index");
-        $routes->get("(:uuid)/logo", "BrandController::getImage/$1" );
-        $routes->post("/", "BrandController::create");
+        $routes->get("", "BrandController::index");
+        $routes->post("", "BrandController::create");
         $routes->put("(:uuid)", "BrandController::update/$1");
+        $routes->get("(:uuid)/logo", "BrandController::getImage/$1" );
     });
 
     $routes->group('store/(:uuid)', function ($routes) {
 
         $routes->get("stats", 'StoreController::stats/$1');
 
-        // TODO: Add filters to check if store exist and the partner owns this store
-        $routes->get('cashier', 'CashierController::index/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
-        $routes->post('cashier', 'CashierController::create/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
-        $routes->put('cashier/(:uuid)',  'CashierController::update/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
-        $routes->delete('cashier/(:uuid)',  'CashierController::delete/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER']);
+        $routes->group('cashier', [ 'filter' => 'auth-filter:MANAGER' ] , function ($routes) {
+            $routes->get('', 'CashierController::index/$1');
+            $routes->post('', 'CashierController::create/$1');
+            $routes->put('(:uuid)', 'CashierController::update/$1/$2');
+            $routes->delete('(:uuid)', 'CashierController::delete/$1/$2');
+        });
 
-        $routes->get('manager',  'ManagerController::index/$1', [ 'filter' => 'auth-filter:PARTNER'  ]);
-        $routes->post('manager', 'ManagerController::create/$1', [ 'filter' => 'auth-filter:PARTNER' ]);
-        $routes->put('manager/(:uuid)',  'ManagerController::update/$1/$2',  [ 'filter' => 'auth-filter:PARTNER' ]);
-        $routes->delete('manager/(:uuid)',  'ManagerController::delete/$1/$2',  [ 'filter' => 'auth-filter:PARTNER' ]);
 
-        $routes->get('registry',  'RegistryController::index/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER;CASHIER']);
-        $routes->post('registry',  'RegistryController::create/$1', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
-        $routes->put('registry/(:uuid)', 'RegistryController::update/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
-        $routes->delete('registry/(:uuid)', 'RegistryController::delete/$1/$2', [ 'filter' => 'auth-filter:MANAGER;DIRECTOR;PARTNER' ]);
-        $routes->get('registry/(:uuid)/sumByDate', 'RegistryController::totalSumByDate/$1/$2');
-        $routes->post('registry/(:uuid)/close', 'RegistryController::closeRegistry/$1/$2');
-        $routes->get('registry/(:uuid)/stats', 'RegistryController::stats/$1/$2');
-        $routes->get('registry/(:uuid)/listTransactions', 'RegistryController::listTransactions/$1/$2');
+        $routes->group('manager', [ 'filter' => 'auth-filter:PARTNER' ] , function ($routes) {
+            $routes->get('', 'ManagerController::index/$1');
+            $routes->post('', 'ManagerController::create/$1');
+            $routes->put('(:uuid)', 'ManagerController::update/$1/$2');
+            $routes->delete('(:uuid)', 'ManagerController::delete/$1/$2');
+        });
+
+
+        $routes->group('registry' , [ 'filter' => 'auth-filter:MANAGER' ] , function ($routes){
+            $routes->get('',  'RegistryController::index/$1', [ 'filter' => 'auth-filter:MANAGER;CASHIER']);
+            $routes->post('',  'RegistryController::create/$1');
+            $routes->put('(:uuid)', 'RegistryController::update/$1/$2');
+            $routes->delete('(:uuid)', 'RegistryController::delete/$1/$2');
+            $routes->get('(:uuid)/sumByDate', 'RegistryController::totalSumByDate/$1/$2');
+            $routes->post('(:uuid)/close', 'RegistryController::closeRegistry/$1/$2');
+            $routes->get('(:uuid)/stats', 'RegistryController::stats/$1/$2');
+            $routes->get('(:uuid)/listTransactions', 'RegistryController::listTransactions/$1/$2');
+        });
+
 
     });
 
     $routes->resource('partner', ['filter' => 'auth-filter:ADMIN', 'controller' => 'PartnerController', 'placeholder' => '(:uuid)'] );
-    $routes->resource('director', ['filter' => 'auth-filter:PARTNER;MANAGER', 'controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
-    $routes->resource('store',  ['filter' => 'auth-filter:PARTNER', 'controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
+    $routes->resource('director', ['filter' => 'auth-filter:PARTNER', 'controller' => 'DirectorController', 'placeholder' => '(:uuid)'] );
+    $routes->resource('store',  ['filter' => 'auth-filter:PARTNER;DIRECTOR', 'controller' => 'StoreController', 'placeholder' => '(:uuid)'] );
+
 
     $routes->group('group',  function($routes) {
         $routes->get('/', 'GroupController::index');
