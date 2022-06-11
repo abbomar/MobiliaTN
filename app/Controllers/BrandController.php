@@ -18,7 +18,7 @@ class BrandController extends BaseController
 
     public function index()
     {
-        $data = $this->brandModel->select("id, brand_name, logo, deleted_at")->findAll();
+        $data = $this->brandModel->select("id, brand_name, deleted_at")->findAll();
         $data = Utils::replaceDeletedAt($data);
         return $this->responseSuccess($data);
     }
