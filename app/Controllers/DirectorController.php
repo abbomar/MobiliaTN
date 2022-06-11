@@ -2,7 +2,9 @@
 
 namespace App\Controllers;
 
+use App\Helpers\AuthenticationHelper;
 use App\Helpers\Utils;
+use Kreait\Firebase\Auth;
 
 class DirectorController extends BaseController
 {
@@ -13,13 +15,13 @@ class DirectorController extends BaseController
         $this->directorModel = model('DirectorModel');
     }
 
-    // TODO: Only managers are allowed to make these operations
 
     public function index()
     {
         $data = $this->directorModel
             ->select('user_id, phone_number, full_name, deleted_at')
             ->withDeleted()
+            ->where("created_by", AuthenticationHelper::getConnectedUser($this->request)["user_id"])
             ->orderBy("full_name")
             ->findAll();
 
@@ -30,13 +32,14 @@ class DirectorController extends BaseController
 
     public function create()
     {
-
         $data = $this->readParamsAndValidate([
             'phone_number' => 'required|exact_length[12]|regex_match[\+216[0-9]{8}]|is_unique[users.phone_number]',
             'full_name' => 'required',
         ]);
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
+
+        $data["created_by"] = AuthenticationHelper::getConnectedUser($this->request)["user_id"];
 
         $this->directorModel->insert($data);
 
@@ -54,10 +57,14 @@ class DirectorController extends BaseController
             return $this->fail($this->validator->getErrors());
         }
 
-        $director = $this->directorModel->find($id);
+        $director = $this->directorModel->withDeleted()->find($id);
 
         if ( $director == null  )
             return $this->fail("We cannot find a director with this id");
+
+        if ( AuthenticationHelper::getConnectedUser($this->request)["user_id"] != $director["created_by"]  ) {
+            return $this->failUnauthorized();
+        }
 
         $userModel = Model("UserModel");
         if ( isset($data["phone_number"]) && $data["phone_number"] != $director["phone_number"] && count($userModel->withDeleted()->where("phone_number", $data["phone_number"])->findAll()) > 0 )
@@ -70,7 +77,13 @@ class DirectorController extends BaseController
 
     public function delete($id)
     {
-        if ( $this->directorModel->find($id) == null ) return $this->fail("We cannot find a director with this id");
+        $director = $this->directorModel->withDeleted()->find($id);
+
+        if ( $director == null ) return $this->fail("We cannot find a director with this id");
+
+        if ( AuthenticationHelper::getConnectedUser($this->request)["user_id"] != $director["created_by"]  ) {
+            return $this->failUnauthorized();
+        }
 
         $this->directorModel->delete($id);
 
