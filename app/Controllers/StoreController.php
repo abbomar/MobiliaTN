@@ -16,20 +16,15 @@ class StoreController extends BaseController
         $this->storeModel = model('StoreModel');
     }
 
-    // TODO: Only directors / managers are allowed to execute these opearations
 
-    /**
-     * Return an array of resource objects, themselves in array format
-     *
-     * @return mixed
-     */
     public function index()
     {
-        // TODO: Filter to connected partner_id
+        $partner = AuthenticationHelper::getConnectedUser($this->request);
 
         $data = $this->storeModel
             ->select('id, store_name, deleted_at')
             ->withDeleted()
+            ->where("partner_id", $partner["user_id"] )
             ->orderBy("store_name")
             ->findAll();
 
@@ -39,11 +34,6 @@ class StoreController extends BaseController
     }
 
 
-    /**
-     * Create a new resource object, from "posted" parameters
-     *
-     * @return mixed
-     */
     public function create()
     {
         $data = $this->readParamsAndValidate([
@@ -60,34 +50,29 @@ class StoreController extends BaseController
     }
 
 
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return mixed
-     */
-    public function update($id = null)
+    public function update($id)
     {
-
         $data = $this->readParamsAndValidate([
             'store_name' => 'required'
         ]);
 
-        if ( $this->storeModel->find($id) == null ) return $this->fail("We cannot find a store with this id");
+        $store = $this->storeModel->withDeleted()->find($id);
+
+        if (  $store == null ) {
+            return $this->fail("We cannot find a store with this id");
+        }
+
+        if ( AuthenticationHelper::getConnectedUser($this->request)["user_id"] != $store["partner_id"]  ) {
+            return $this->failUnauthorized();
+        }
+
 
         $this->storeModel->update($id, $data);
 
         return $this->responseSuccess(null, "Store updated successfully");
     }
 
-    /**
-     * Delete the designated resource object from the model
-     *
-     * @return mixed
-     */
-    public function delete($id = null)
-    {
-        //
-    }
+
 
     public function stats($store_id)
     {
@@ -98,6 +83,11 @@ class StoreController extends BaseController
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
+        $store = $this->storeModel->withDeleted()->find($store_id);
+
+        if ( AuthenticationHelper::getConnectedUser($this->request)["user_id"] != $store["partner_id"]  ) {
+            return $this->failUnauthorized();
+        }
 
         switch ($data["group_by"])
         {
@@ -129,6 +119,5 @@ class StoreController extends BaseController
             ->findAll();
 
         return $this->responseSuccess($data);
-
     }
 }
