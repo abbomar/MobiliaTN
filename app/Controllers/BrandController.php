@@ -62,9 +62,13 @@ class BrandController extends BaseController
 
     public function update($brand_id){
         $data = $this->readParamsAndValidate([
-            'brand_name' => 'required',
-            'logo' => 'valid_base64',
+            'brand_name' => 'required'
         ]);
+
+        $logo = $this->request->getVar("logo");
+        if ( $logo != null ){
+            $data["logo"] = $logo;
+        }
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
