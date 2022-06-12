@@ -72,4 +72,9 @@ class BrandController extends BaseController
         $this->brandModel->update($brand_id, $data);
         return $this->responseSuccess(null, "Brand updated successfully");
     }
+
+    public function delete($brand_id){
+        $this->brandModel->delete($brand_id);
+        return $this->responseSuccess(null, "Brand deleted successfully");
+    }
 }
