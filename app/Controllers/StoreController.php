@@ -92,27 +92,27 @@ class StoreController extends BaseController
         switch ($data["group_by"])
         {
             case "day":
-                $sql_group_by = "DAY(updated_at), MONTH(updated_at), YEAR(updated_at)";
-                $format_date = "DATE_FORMAT(updated_at, '%d %M %Y')";
+                $sql_group_by = "DAY(created_at), MONTH(created_at), YEAR(created_at)";
+                $format_date = "DATE_FORMAT(created_at, '%d %M %Y')";
                 break;
             case "week":
-                $sql_group_by = "WEEK(updated_at, 7), YEAR(updated_at)";
-                $format_date = "concat( DATE_FORMAT( STR_TO_DATE(DATE_FORMAT(updated_at, '%Y%v Monday'), '%x%v %W'), '%d/%m') , ' - ' , DATE_FORMAT( STR_TO_DATE(DATE_FORMAT(updated_at, '%Y%v Sunday'), '%x%v %W'), '%d/%m') ) ";
+                $sql_group_by = "WEEK(created_at, 7), YEAR(created_at)";
+                $format_date = "concat( DATE_FORMAT( STR_TO_DATE(DATE_FORMAT(created_at, '%Y%v Monday'), '%x%v %W'), '%d/%m') , ' - ' , DATE_FORMAT( STR_TO_DATE(DATE_FORMAT(created_at, '%Y%v Sunday'), '%x%v %W'), '%d/%m') ) ";
                 break;
             case "month":
-                $sql_group_by = "MONTH(updated_at), YEAR(updated_at)";
-                $format_date = "DATE_FORMAT(updated_at, '%M %Y')";
+                $sql_group_by = "MONTH(created_at), YEAR(created_at)";
+                $format_date = "DATE_FORMAT(created_at, '%M %Y')";
                 break;
             case "year":
-                $sql_group_by = "YEAR(updated_at)";
-                $format_date = "DATE_FORMAT(updated_at, '%Y')";
+                $sql_group_by = "YEAR(created_at)";
+                $format_date = "DATE_FORMAT(created_at, '%Y')";
                 break;
         }
 
         $transactionModel = model("TransactionModel");
 
         $data = $transactionModel
-            ->select("DATE_FORMAT(updated_at, $format_date ) as date ,  sum(total_amount) as total_amount")
+            ->select("DATE_FORMAT(created_at, $format_date ) as date ,  sum(total_amount) as total_amount")
             ->where("status", "CONFIRMED")
             ->where("store_id", $store_id)
             ->groupBy($sql_group_by)

@@ -92,14 +92,27 @@ class RegistryController extends BaseController
         }
 
         $transactionModel = Model("TransactionModel");
-        $data = $transactionModel
+        $data_valid = $transactionModel
             ->select("sum(total_amount) sum")
             ->where("registry_id", $registry_id)
             ->where("store_id", $store_id)
-            ->where('date(updated_at)', $params['date'])
+            ->where('date(created_at)', $params['date'])
             ->where("status", "VALID")
-            ->groupBy("date(updated_at)")
+            ->groupBy("date(created_at)")
             ->findAll();
+
+        $data_confirmed = $transactionModel
+            ->select("sum(total_amount) sum")
+            ->where("registry_id", $registry_id)
+            ->where("store_id", $store_id)
+            ->where('date(created_at)', $params['date'])
+            ->where("status", "CONFIRMED")
+            ->groupBy("date(created_at)")
+            ->findAll();
+
+        $data = array();
+        $data["confirmed_total_amount"] = count($data_confirmed) == 0 ? 0 : $data_confirmed[0]["sum"];
+        $data["valid_total_amount"] =  count($data_valid) == 0 ? 0 : $data_valid[0]["sum"];
 
         return $this->responseSuccess($data);
     }
@@ -114,7 +127,7 @@ class RegistryController extends BaseController
 
         $transactionsToBeConfirmed = $transactionModel
             ->select('id')
-            ->where('date(updated_at)', $params['date'])
+            ->where('date(created_at)', $params['date'])
             ->where("registry_id", $registry_id)
             ->where("store_id", $store_id)
             ->where("status", "VALID")
@@ -141,11 +154,11 @@ class RegistryController extends BaseController
         $transactionModel = model("TransactionModel");
 
         $data = $transactionModel
-            ->select("DATE_FORMAT(updated_at, '%d %M %Y' ) as date ,  sum(total_amount) as total_amount")
-            ->where("status", "CONFIRMED")
+            ->select("DATE_FORMAT(created_at, '%d %M %Y' ) as date , sum(total_amount) as total_amount")
+            ->whereIn("status", array("CONFIRMED", "VALID"))
             ->where("registry_id", $registry_id)
-            ->groupBy("date(updated_at)")
-            ->orderBy("updated_at desc")
+            ->groupBy("date(created_at)")
+            ->orderBy("created_at desc")
             ->findAll();
 
         return $this->responseSuccess($data);
@@ -165,12 +178,12 @@ class RegistryController extends BaseController
         $transactionModel = model("TransactionModel");
 
         $data = $transactionModel
-            ->select("DATE_FORMAT(transactions.updated_at, '%d %M %Y') as date, cashiers.full_name as cashier_name,  transactions.total_amount as total_amount")
-            ->where("status", "CONFIRMED")
+            ->select("DATE_FORMAT(transactions.created_at, '%d %M %Y') as date, cashiers.full_name as cashier_name, transactions.status, transactions.cash_amount,  transactions.total_amount")
+            ->whereIn("status", array("CONFIRMED", "VALID"))
             ->where("registry_id", $registry_id)
-            ->where("date(transactions.updated_at)", $params["date"])
+            ->where("date(transactions.created_at)", $params["date"])
             ->join("users as cashiers", "cashiers.user_id = transactions.cashier_id")
-            ->orderBy("transactions.updated_at desc")
+            ->orderBy("transactions.created_at desc")
             ->findAll();
 
         return $this->responseSuccess($data);
