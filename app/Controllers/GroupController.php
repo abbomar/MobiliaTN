@@ -61,7 +61,8 @@ class GroupController extends BaseController
 
 
 
-    public function appendUsers($group_id) {
+    public function appendUsers($group_id)
+    {
 
         if ( $this->groupModel->find($group_id) == null ) return $this->fail("We cannot find a group with this id");
 
@@ -86,14 +87,14 @@ class GroupController extends BaseController
         //$userModel->db->transBegin();
 
         foreach ($usersArray as $user) {
-            $row = [
-                "phone_number" => $user["phone_number"],
-                "full_name" => "import test",
-                "group_id" => $group_id,
-            ];
+
+            $user["balance_amount"] = str_replace(',','.',$user["balance_amount"]);
+            $user["full_name"] = "import test";
+            $user["group_id"] = $group_id;
+
 
             try {
-                if ( $userModel->insert($row) )
+                if ( $userModel->insert($user) )
                     $validRecords ++;
             } catch(\Exception $e) {
             }
@@ -165,23 +166,23 @@ class GroupController extends BaseController
 
         while (($filedata = fgetcsv($file, null, ";")) !== FALSE) {
 
-            $firstColumValue = trim($filedata[0]);
+            $phoneNumber = trim($filedata[0]);
+            $initialBalance = trim($filedata[1]);
 
-            if ( strlen($firstColumValue) == 8  )
+            if ( strlen($phoneNumber) == 8  )
             {
                 $row = [
-                    "phone_number" => "+216$firstColumValue",
+                    "phone_number" => "+216$phoneNumber",
+                    "balance_amount" => $initialBalance ?? "0"
                 ];
                 array_push($res, $row);
             }
-
         }
         fclose($file);
-
+        //TODO: Uncomment this
         //unlink($filename);
 
         return $res;
-
     }
 
 }
