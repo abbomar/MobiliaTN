@@ -28,7 +28,7 @@ class TransactionController extends BaseController
 
         $data = $this->readParamsAndValidate([
             'client_phone_number' => 'required', // TODO : add constraint is not unique
-            'registry_id' => 'required|is_not_unique[registries.id]', // TODO: add constraint is not unique
+            'registry_id' => 'required|is_not_unique[registries.id]',
             'total_amount' => 'required|decimal',
             'cash_amount' => 'required|decimal|less_than_equal_to[total_amount]',
         ]);
@@ -61,7 +61,7 @@ class TransactionController extends BaseController
         unset($data["client_phone_number"]);
 
         $insertion_id = $this->transactionModel->insert($data);
-
+// TODO : remove otp from response when go on prod
         return $this->responseSuccess($insertion_id, "Transaction initiated successfully | OTP = {$data['otp']}" );
     }
 
@@ -166,9 +166,10 @@ class TransactionController extends BaseController
         $cashier_id = $cashier["user_id"];
 
         $data = $this->transactionModel
-            ->select('transactions.id, transactions.client_id, users.full_name, status, total_amount, cash_amount, transactions.created_at')
+            ->select('transactions.id, transactions.client_id, users.full_name, registries.registry_name, status, total_amount, cash_amount, transactions.created_at')
             ->join('stores','stores.id = transactions.store_id')
             ->join('users','users.user_id = transactions.client_id')
+            ->join('registries','registries.id = transactions.registry_id')
             ->select('transactions.id, store_name, total_amount, cash_amount, transactions.updated_at')
             ->where('status !=', 'CREATED')
             ->where('cashier_id',  $cashier_id)

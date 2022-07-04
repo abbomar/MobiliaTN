@@ -22,8 +22,9 @@ class RegistryController extends BaseController
     public function index($store_id)
     {
         $data = $this->registryModel
-            ->select('id, registry_name, deleted_at')
-            ->where('store_id', $store_id)
+            ->select('registries.id, registry_name, users.full_name as created_by, registries.created_at, registries.deleted_at')
+            ->join("users", "users.user_id = registries.created_by", "left")
+            ->where('registries.store_id', $store_id)
             ->withDeleted()
             ->orderBy("registry_name")
             ->findAll();

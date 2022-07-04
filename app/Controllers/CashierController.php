@@ -18,10 +18,11 @@ class CashierController extends BaseController
     public function index($store_id)
     {
         $data = $this->cashierModel
-            ->select('user_id, phone_number, full_name, deleted_at')
-            ->where('store_id', $store_id)
+            ->select('users.user_id, users.phone_number, users.full_name, creator.full_name as created_by, users.created_at, users.deleted_at')
+            ->join("users creator", "creator.user_id = users.created_by" , "left" )
+            ->where('users.store_id', $store_id)
             ->withDeleted()
-            ->orderBy("full_name")
+            ->orderBy("users.full_name")
             ->findAll();
 
         $data = Utils::replaceDeletedAt($data);

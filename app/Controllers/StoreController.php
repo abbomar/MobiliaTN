@@ -22,7 +22,8 @@ class StoreController extends BaseController
         $partner = AuthenticationHelper::getConnectedUser($this->request);
 
         $data = $this->storeModel
-            ->select('id, store_name, deleted_at')
+            ->select('id, store_name, users.full_name as created_by, stores.created_at, stores.deleted_at')
+            ->join("users", "users.user_id = stores.created_by", "left")
             ->withDeleted()
             ->where("partner_id", $partner["user_id"] )
             ->orderBy("store_name")
@@ -42,7 +43,14 @@ class StoreController extends BaseController
 
         if( ! isset($data) ) { return $this->fail($this->validator->getErrors()); }
 
-        $data["partner_id"] = AuthenticationHelper::getConnectedUser($this->request)['user_id'];
+        $connected_user = AuthenticationHelper::getConnectedUser($this->request);
+        if ( $connected_user["role"] == "PARTNER" ) {
+            $data["partner_id"] = $connected_user['user_id'];
+        } else { // DIRECTOR
+            $data["partner_id"] = $connected_user['created_by'];
+        }
+
+        $data["created_by"] = $connected_user["user_id"];
 
         $this->storeModel->insert($data);
 
