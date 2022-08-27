@@ -93,7 +93,10 @@ class StoreController extends BaseController
 
         $store = $this->storeModel->withDeleted()->find($store_id);
 
-        if ( AuthenticationHelper::getConnectedUser($this->request)["user_id"] != $store["partner_id"]  ) {
+
+        $connected_user_id = AuthenticationHelper::getConnectedUser($this->request)["user_id"];
+
+        if (  $connected_user_id != $store["created_by"] && $connected_user_id != $store["partner_id"] ) {
             return $this->failUnauthorized();
         }
 
