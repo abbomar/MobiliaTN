@@ -19,13 +19,13 @@ class StoreController extends BaseController
 
     public function index()
     {
-        $partner = AuthenticationHelper::getConnectedUser($this->request);
+        $user = AuthenticationHelper::getConnectedUser($this->request);
 
         $data = $this->storeModel
             ->select('id, store_name, users.full_name as created_by, stores.created_at, stores.deleted_at')
             ->join("users", "users.user_id = stores.created_by", "left")
             ->withDeleted()
-            ->where("partner_id", $partner["user_id"] )
+            ->where("stores.created_by", $user["user_id"] )
             ->orderBy("store_name")
             ->findAll();
 
