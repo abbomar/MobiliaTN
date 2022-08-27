@@ -64,7 +64,7 @@ $routes->group('api/v1', function ($routes) {
         });
 
 
-        $routes->group('manager', [ 'filter' => 'auth-filter:PARTNER' ] , function ($routes) {
+        $routes->group('manager', [ 'filter' => 'auth-filter:PARTNER;DIRECTOR' ] , function ($routes) {
             $routes->get('', 'ManagerController::index/$1');
             $routes->post('', 'ManagerController::create/$1');
             $routes->put('(:uuid)', 'ManagerController::update/$1/$2');
