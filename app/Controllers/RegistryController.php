@@ -17,8 +17,6 @@ class RegistryController extends BaseController
         $this->registryModel = model('RegistryModel');
     }
 
-
-
     public function index($store_id)
     {
         $data = $this->registryModel
@@ -118,11 +116,43 @@ class RegistryController extends BaseController
         return $this->responseSuccess($data);
     }
 
+
+    public function initCloseRegistry()
+    {
+        $otp = rand(100000,999999);
+
+        $connected_user = AuthenticationHelper::getConnectedUser($this->request);
+        $phone_number = $connected_user["phone_number"];
+        $user_id = $connected_user["user_id"];
+
+        $sms_id = Utils::sendSMS($connected_user, "{$otp} est le code confidentiel pour confirmer la fermeture de la caisse.", $phone_number, $otp, "fermer-caisse-otp" );
+        return $this->responseSuccess($sms_id, "SMS sent successfully");
+    }
+
+
     public function closeRegistry($store_id, $registry_id)
     {
         $params = $this->readParamsAndValidate([
-            'date' => 'required|valid_date'
+            'date' => 'required|valid_date',
+            'sms_id' => 'required',
+            'otp' => 'required'
         ]);
+
+        if( ! isset($params) ) {
+            return $this->fail($this->validator->getErrors());
+        }
+
+        $smsModel = Model("SMSModel");
+        $smsList = $smsModel->select("otp")->where("id", $params["sms_id"] )->findAll();
+
+        if ( count( $smsList ) == 0 ) {
+            return $this->fail("Pas d'SMS avec cet ID");
+        }
+
+        if ( $params["otp"] != $smsList[0]["otp"] ) {
+            return $this->fail("OTP Incorrect");
+        }
+
 
         $transactionModel = Model("TransactionModel");
 
@@ -140,14 +170,12 @@ class RegistryController extends BaseController
             $row["confirmed_by"] = $manager_id;
         }
 
-        if ( count($transactionsToBeConfirmed) > 0 )
-        {
+        if ( count($transactionsToBeConfirmed) > 0 ) {
             $transactionModel->updateBatch($transactionsToBeConfirmed, 'id');
         }
 
         return $this->responseSuccess(null, "Registry closed : {$params['date']} ");
     }
-
 
     public function stats($store_id, $registry_id)
     {
@@ -164,7 +192,6 @@ class RegistryController extends BaseController
 
         return $this->responseSuccess($data);
     }
-
 
     public function listTransactions($store_id, $registry_id)
     {

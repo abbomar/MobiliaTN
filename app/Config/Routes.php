@@ -72,13 +72,14 @@ $routes->group('api/v1', function ($routes) {
         });
 
 
-        $routes->group('registry' , [ 'filter' => 'auth-filter:MANAGER' ] , function ($routes){
+        $routes->group('registry' , [ 'filter' => 'auth-filter:MANAGER' ] , function ($routes) {
             $routes->get('',  'RegistryController::index/$1', [ 'filter' => 'auth-filter:MANAGER;CASHIER']);
             $routes->post('',  'RegistryController::create/$1');
             $routes->put('(:uuid)', 'RegistryController::update/$1/$2');
             $routes->delete('(:uuid)', 'RegistryController::delete/$1/$2');
             $routes->get('(:uuid)/sumByDate', 'RegistryController::totalSumByDate/$1/$2');
             $routes->post('(:uuid)/close', 'RegistryController::closeRegistry/$1/$2');
+            $routes->post('(:uuid)/initClose', 'RegistryController::initCloseRegistry');
             $routes->get('(:uuid)/stats', 'RegistryController::stats/$1/$2');
             $routes->get('(:uuid)/listTransactions', 'RegistryController::listTransactions/$1/$2');
         });
