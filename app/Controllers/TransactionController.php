@@ -58,13 +58,17 @@ class TransactionController extends BaseController
 
         $app_amount = $data["total_amount"] - $data["cash_amount"];
 
-        $this->sendSMS($data["client_phone_number"], "{$data["otp"]} est le code confidentiel de la transaction. Montant en espèces = {$data["cash_amount"]} DT. Montant app = {$app_amount} DT" ) ;
+        //$this->sendSMS($data["client_phone_number"], "{$data["otp"]} est le code confidentiel de la transaction. Montant en espèces = {$data["cash_amount"]} DT. Montant app = {$app_amount} DT" ) ;
+
+        Utils::sendSMS(AuthenticationHelper::getConnectedUser($this->request),
+            "{$data["otp"]} est le code confidentiel de la transaction. Montant en espèces = {$data["cash_amount"]} DT. Montant app = {$app_amount} DT",
+            $data["client_phone_number"], $data["otp"], "transaction-otp");
 
         unset($data["client_phone_number"]);
 
         $insertion_id = $this->transactionModel->insert($data);
-// TODO : remove otp from response when go on prod
-        return $this->responseSuccess($insertion_id, "Transaction initiated successfully | OTP = {$data['otp']}" );
+        // TODO : remove otp from response when go on prod
+        return $this->responseSuccess($insertion_id, "Transaction initiated successfully | OTP = {$data['otp']}",  );
     }
 
     public function validateTransaction($transaction_id) {
@@ -104,43 +108,19 @@ class TransactionController extends BaseController
 
     }
 
-    public function sendSMS($phone_number, $message)
-    {
-        $endpoint = 'ovh-eu';
-        $applicationKey = "092d82f35c77c5d8";
-        $applicationSecret = "96140a4414de0a2e078d1a587dfddbdd";
-        $consumer_key = "1d614f36c2eacd1572088cfd860a41aa";
+    public function editTransaction($transaction_id) {
 
-        $conn = new Api(    $applicationKey,
-            $applicationSecret,
-            $endpoint,
-            $consumer_key);
-
-        $smsServices = $conn->get('/sms');
-        //print_r($smsServices);
-
-        $smsSenders = $conn->get('/sms/' . $smsServices[0] . '/senders' );
-        //print_r($smsSenders);
+        $data = $this->readParamsAndValidate([
+            'ref' => 'required',
+        ]);
 
 
-        $content = (object) array(
-            "charset"=> "UTF-8",
-            "class"=> "phoneDisplay",
-            "coding"=> "7bit",
-            "message"=> $message,
-            "noStopClause"=> false,
-            "priority"=> "high",
-            "receivers"=> [ $phone_number ],
-            "sender" => "TUNTRANSACT",
-            "validityPeriod"=> 2880
-        );
-        $resultPostJob = $conn->post('/sms/'. $smsServices[0] . '/jobs', $content);
+        $this->transactionModel->update($transaction_id, $data );
 
-        //print_r($resultPostJob);
+        return $this->responseSuccess(null, "Transaction updated successfully");
 
-        $smsJobs = $conn->get('/sms/'. $smsServices[0] . '/jobs');
-        //print_r($smsJobs);
     }
+
 
     public function clientTransactionsHistory()
     {
@@ -179,8 +159,6 @@ class TransactionController extends BaseController
 
         return $this->responseSuccess($data);
     }
-
-
 
 
 }

@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 
+use Ovh\Api;
 use phpDocumentor\Reflection\Types\Array_;
 
 class Utils
@@ -49,6 +50,59 @@ class Utils
         }
 
         return $data;
+    }
+
+
+    public static function sendSMS($user, $body, $phone_number, $otp=0, $type="")
+    {
+
+        $smsModel = model('SMSModel');
+
+        $data = [
+            'user_id' => $user['user_id'],
+            'body' => $body,
+            'phone_number' => $phone_number,
+            'otp' => $otp,
+            'status' => "0",
+            "type" => $type
+        ];
+
+
+        $sms_id = $smsModel->insert($data);
+
+
+        $endpoint = 'ovh-eu';
+        $applicationKey = "092d82f35c77c5d8";
+        $applicationSecret = "96140a4414de0a2e078d1a587dfddbdd";
+        $consumer_key = "1d614f36c2eacd1572088cfd860a41aa";
+
+        $conn = new Api(    $applicationKey,
+            $applicationSecret,
+            $endpoint,
+            $consumer_key);
+
+        $smsServices = $conn->get('/sms');
+
+        $smsSenders = $conn->get('/sms/' . $smsServices[0] . '/senders' );
+
+
+        $content = (object) array(
+            "charset"=> "UTF-8",
+            "class"=> "phoneDisplay",
+            "coding"=> "7bit",
+            "message"=> $body,
+            "noStopClause"=> false,
+            "priority"=> "high",
+            "receivers"=> [ $phone_number ],
+            "sender" => "TUNTRANSACT",
+            "validityPeriod"=> 2880
+        );
+        $resultPostJob = $conn->post('/sms/'. $smsServices[0] . '/jobs', $content);
+
+        $smsJobs = $conn->get('/sms/'. $smsServices[0] . '/jobs');
+
+
+        return $sms_id;
     }
 
 }

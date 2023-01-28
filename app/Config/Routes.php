@@ -107,6 +107,7 @@ $routes->group('api/v1', function ($routes) {
         $routes->get('clientHistory', 'TransactionController::clientTransactionsHistory' );
         $routes->post('initiate', 'TransactionController::initiateTransaction');
         $routes->post('(:uuid)/validate', 'TransactionController::validateTransaction/$1');
+        $routes->post('(:uuid)/edit', 'TransactionController::editTransaction/$1');
     });
 
 
